@@ -81,36 +81,47 @@ local function moveNearbyPlayers(localRoot)
 	end
 end
 
-task.spawn(function()
-	while true do
-		local foundTarget = nil
+local currentTarget = nil
 
-		for _, player in ipairs(Players:GetPlayers()) do
-			if player ~= LocalPlayer then
-				local char = player.Character
-				if not char then continue end
+RunService.RenderStepped:Connect(function()
+	if currentTarget then
+		local char = currentTarget.Character
+		local humanoid = char and char:FindFirstChild("Humanoid")
 
-				local humanoid = char:FindFirstChild("Humanoid")
-				local head = char:FindFirstChild("Head")
-				local carried = char:FindFirstChild("BeingCarried")
-				local stompable = char:FindFirstChild("canBeStomped")
-				local pvp = char:FindFirstChild("hasPvpOn")
-
-				if humanoid and stompable and humanoid.Health > 1 and not carried and pvp and head then
-					if head.Position.Y < 300 then
-						foundTarget = player
-						break
-					end
-				end
-			end
+		if humanoid and humanoid.Health <= 1 then
+			slayTarget = currentTarget
+			isSlaying = true
+			return
 		end
 
-		slayTarget = foundTarget
-		isSlaying = foundTarget ~= nil
+		currentTarget = nil
+		slayTarget = nil
+		isSlaying = false
+	end
 
-		task.wait(0.65)
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player == LocalPlayer then continue end
+
+		local char = player.Character
+		if not char then continue end
+
+		local humanoid = char:FindFirstChild("Humanoid")
+		local head = char:FindFirstChild("Head")
+		local carried = char:FindFirstChild("BeingCarried")
+		local stompable = char:FindFirstChild("canBeStomped")
+		local pvp = char:FindFirstChild("hasPvpOn")
+
+		if humanoid and stompable and pvp and head and not carried and humanoid.Health > 1 then
+			if head.Position.Y < 300 then
+				currentTarget = player
+				slayTarget = player
+				isSlaying = true
+				break
+			end
+		end
 	end
 end)
+
 
 RunService.Heartbeat:Connect(function()
 	local char = LocalPlayer.Character
