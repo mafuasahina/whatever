@@ -94,8 +94,9 @@ task.spawn(function()
 				local head = char and char:FindFirstChild("Head")
 				local carried = char and char:FindFirstChild("BeingCarried")
 				local stompable = char and char:FindFirstChild("canBeStomped")
+				local pvp = char and char:FindFirstChild("hasPvpOn")
 
-				if humanoid and stompable and humanoid.Health > 1 and not carried then
+				if humanoid and stompable and humanoid.Health > 1 and not carried and pvp then
 					local yPos = head.Position.Y
 					if yPos < 300 then
 						foundTarget = player
