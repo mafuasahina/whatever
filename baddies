@@ -108,7 +108,7 @@ task.spawn(function()
 
 		slayTarget = foundTarget
 		isSlaying = foundTarget ~= nil
-		task.wait(.35)
+		task.wait(0.65)
 	end
 end)
 
