@@ -92,12 +92,12 @@ RunService.RenderStepped:Connect(function()
 	if slayTarget and slayTarget.Character then
 		local char = slayTarget.Character
 		local humanoid = char:FindFirstChild("Humanoid")
-		local head = char:FindFirstChild("Head")
+		local root = char:FindFirstChild("HumanoidRootPart")
 		local carried = char:FindFirstChild("BeingCarried")
 		local stompable = char:FindFirstChild("canBeStomped")
 		local pvp = char:FindFirstChild("hasPvpOn")
 
-		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp) and head then
+		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp) and root then
 			slayTarget = nil
 			isSlaying = false
 		end
@@ -110,13 +110,13 @@ RunService.RenderStepped:Connect(function()
 				if not char then continue end
 
 				local humanoid = char:FindFirstChild("Humanoid")
-				local head = char:FindFirstChild("Head")
+				local root = char:FindFirstChild("HumanoidRootPart")
 				local carried = char:FindFirstChild("BeingCarried")
 				local stompable = char:FindFirstChild("canBeStomped")
 				local pvp = char:FindFirstChild("hasPvpOn")
 
-				if humanoid and stompable and humanoid.Health > 1 and not carried and pvp and head then
-					if head.Position.Y < 300 then
+				if humanoid and stompable and humanoid.Health > 1 and not carried and pvp and root then
+					if root.Position.Y < 300 then
 						slayTarget = player
 						isSlaying = true
 						break
@@ -134,13 +134,10 @@ RunService.Heartbeat:Connect(function()
 
 	if isSlaying and slayTarget and slayTarget.Character then
 		local targetChar = slayTarget.Character
-		local head = targetChar:FindFirstChild("Head")
-		local torso = targetChar:FindFirstChild("UpperTorso")
+		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
 
-		if head and torso then
-			local pos = head.Position:Lerp(torso.Position, math.random()) + Vector3.new(0, 2, 0)
-			local lookAt = Vector3.new(torso.Position.X, pos.Y, torso.Position.Z)
-			root.CFrame = CFrame.lookAt(pos, lookAt)
+		if targetroot then
+			root.CFrame = CFrame.new(targetroot.Position) * CFrame.new(0, 2, 0)
 			fireSlay()
 		end
 	else
