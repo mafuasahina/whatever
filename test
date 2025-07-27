@@ -81,6 +81,13 @@ local function moveNearbyPlayers(localRoot)
 	end
 end
 
+Players.PlayerRemoving:Connect(function(player)
+	if player == slayTarget then
+		slayTarget = nil
+		isSlaying = false
+	end
+end)
+
 RunService.RenderStepped:Connect(function()
 	if slayTarget and slayTarget.Character then
 		local char = slayTarget.Character
