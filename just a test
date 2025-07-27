@@ -1,150 +1,145 @@
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Backpack = LocalPlayer:WaitForChild("Backpack")
 
---// Remotes
 local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
-local stompEvent = ReplicatedStorage:WaitForChild("STOMPEVENT")
 
 local hitRemotes = {
-    Net:WaitForChild("RE/BeachShovelHit"),
-    Net:WaitForChild("RE/panHit"),
-    Net:WaitForChild("RE/pinkStopSignalHit"),
-    Net:WaitForChild("RE/baseballBatHit")
+	Net:WaitForChild("RE/BeachShovelHit"),
+	Net:WaitForChild("RE/panHit"),
+	Net:WaitForChild("RE/pinkStopSignalHit"),
+	Net:WaitForChild("RE/baseballBatHit"),
 }
 
---// State
-local slayTarget = nil
-local isSlaying = false
-
---// Functions
+local stompEvent = ReplicatedStorage:WaitForChild("STOMPEVENT")
 
 local function buyTool(toolName, buttonName)
-    if Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName) then return end
-    local button = workspace:FindFirstChild(buttonName, true)
-    if not button then return end
+	if Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName) then return end
 
-    local prompt = button:FindFirstChildWhichIsA("ProximityPrompt", true)
-    if not prompt then return end
+	local button = workspace:FindFirstChild(buttonName, true)
+	if not button then return end
 
-    Character:PivotTo(button.CFrame + Vector3.new(0, 2, 0))
-    while not (Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName)) do
-        fireproximityprompt(prompt)
-        task.wait()
-    end
+	local prompt = button:FindFirstChildWhichIsA("ProximityPrompt", true)
+	if not prompt then return end
+
+	Character:PivotTo(button.CFrame + Vector3.new(0, 2, 0))
+
+	while not (Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName)) do
+		fireproximityprompt(prompt)
+		task.wait()
+	end
 end
-
-local function fireHits()
-    for _, remote in ipairs(hitRemotes) do
-        pcall(function()
-            remote:FireServer(1)
-        end)
-    end
-end
-
-local function fireSlay()
-    pcall(function()
-        stompEvent:FireServer()
-    end)
-end
-
-local function teleportToSky(character)
-    local root = character:FindFirstChild("HumanoidRootPart")
-    if root then
-        root.CFrame = CFrame.new(0, 1000, 0)
-    end
-end
-
-local function moveNearbyPlayers(localRoot)
-    for _, player in ipairs(Players:GetPlayers()) do
-        if player ~= LocalPlayer then
-            local char = player.Character
-            local humanoid = char and char:FindFirstChild("Humanoid")
-            local root = char and char:FindFirstChild("HumanoidRootPart")
-            local pvp = char and char:FindFirstChild("hasPvpOn")
-            local stompable = char and char:FindFirstChild("canBeStomped")
-
-            if humanoid and not stompable and pvp and root then
-                root.CanCollide = false
-                root.Size = Vector3.new(20, 20, 20)
-                root.CFrame = localRoot.CFrame * CFrame.new(0, 0, -10)
-            end
-        end
-    end
-end
-
-local function detectSlayTarget()
-    while true do
-        for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                local char = player.Character
-                local humanoid = char and char:FindFirstChild("Humanoid")
-                local head = char and char:FindFirstChild("Head")
-                local carried = char and char:FindFirstChild("BeingCarried")
-                local stompable = char and char:FindFirstChild("canBeStomped")
-                local pvp = char and char:FindFirstChild("hasPvpOn")
-
-                if humanoid and stompable and humanoid.Health > 1 and not carried and pvp and head.Position.Y < 300 then
-                    slayTarget = player
-                    isSlaying = true
-                    break
-                end
-            end
-        end
-        if not slayTarget then
-            isSlaying = false
-        end
-        task.wait(0.65)
-    end
-end
-
-local function handleCombat()
-    local char = LocalPlayer.Character
-    local root = char and char:FindFirstChild("HumanoidRootPart")
-    if not char or not root then return end
-
-    if isSlaying and slayTarget and slayTarget.Character then
-        local targetChar = slayTarget.Character
-        local targetHead = targetChar:FindFirstChild("Head")
-        local targetTorso = targetChar:FindFirstChild("UpperTorso")
-        if targetHead and targetTorso then
-            local pos = targetHead.Position:Lerp(targetTorso.Position, math.random()) + Vector3.new(0, 2, 0)
-            local lookAt = Vector3.new(targetTorso.Position.X, pos.Y, targetTorso.Position.Z)
-            root.CFrame = CFrame.lookAt(pos, lookAt)
-            fireSlay()
-        end
-    else
-        fireHits()
-        teleportToSky(char)
-        moveNearbyPlayers(root)
-    end
-end
-
-local function passiveHealing()
-    local humanoid = Character:FindFirstChildOfClass("Humanoid")
-    if humanoid and humanoid.Health < 70 then
-        pcall(function()
-            Net:FindFirstChild("RF/RequestSurgery"):InvokeServer()
-        end)
-    end
-end
-
---// Start
 
 buyTool("Pan", "Pan Buy button")
 buyTool("BeachShovel", "botonComprarShovel")
 
-task.spawn(detectSlayTarget)
+local slayTarget = nil
+local isSlaying = false
 
-RunService.Heartbeat:Connect(handleCombat)
+local function fireHits()
+	for _, remote in ipairs(hitRemotes) do
+		pcall(function()
+			remote:FireServer(1)
+		end)
+	end
+end
+
+local function teleportToSky(character)
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if root then
+		root.CFrame = CFrame.new(0, 1000, 0)
+	end
+end
+
+local function fireSlay()
+	pcall(function()
+		stompEvent:FireServer()
+	end)
+end
+
+local function moveNearbyPlayers(localRoot)
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer then
+			local char = player.Character
+			if not char then continue end
+
+			local humanoid = char:FindFirstChild("Humanoid")
+			local root = char:FindFirstChild("HumanoidRootPart")
+			local pvp = char:FindFirstChild("hasPvpOn")
+			local stompable = char:FindFirstChild("canBeStomped")
+
+			if humanoid and root and not stompable and pvp then
+				root.CanCollide = false
+				root.Size = Vector3.new(20, 20, 20)
+				root.CFrame = localRoot.CFrame * CFrame.new(0, 0, -10)
+			end
+		end
+	end
+end
+
+task.spawn(function()
+	while true do
+		local foundTarget = nil
+
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player ~= LocalPlayer then
+				local char = player.Character
+				if not char then continue end
+
+				local humanoid = char:FindFirstChild("Humanoid")
+				local head = char:FindFirstChild("Head")
+				local carried = char:FindFirstChild("BeingCarried")
+				local stompable = char:FindFirstChild("canBeStomped")
+				local pvp = char:FindFirstChild("hasPvpOn")
+
+				if humanoid and stompable and humanoid.Health > 1 and not carried and pvp and head then
+					if head.Position.Y < 300 then
+						foundTarget = player
+						break
+					end
+				end
+			end
+		end
+
+		slayTarget = foundTarget
+		isSlaying = foundTarget ~= nil
+
+		task.wait(0.65)
+	end
+end)
+
+RunService.Heartbeat:Connect(function()
+	local char = LocalPlayer.Character
+	local root = char and char:FindFirstChild("HumanoidRootPart")
+	if not char or not root then return end
+
+	if isSlaying and slayTarget and slayTarget.Character then
+		local targetChar = slayTarget.Character
+		local head = targetChar:FindFirstChild("Head")
+		local torso = targetChar:FindFirstChild("UpperTorso")
+
+		if head and torso then
+			local pos = head.Position:Lerp(torso.Position, math.random()) + Vector3.new(0, 2, 0)
+			local lookAt = Vector3.new(torso.Position.X, pos.Y, torso.Position.Z)
+			root.CFrame = CFrame.lookAt(pos, lookAt)
+			fireSlay()
+		end
+	else
+		fireHits()
+		teleportToSky(char)
+		moveNearbyPlayers(root)
+	end
+end)
 
 RunService.RenderStepped:Connect(function()
-    pcall(function()
-        Net:FindFirstChild("RF/SalonPunch"):InvokeServer()
-        passiveHealing()
-    end)
+	Net:FindFirstChild("RF/SalonPunch"):InvokeServer()
+
+	local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+	if humanoid and humanoid.Health < 70 then
+		Net:FindFirstChild("RF/RequestSurgery"):InvokeServer()
+	end
 end)
