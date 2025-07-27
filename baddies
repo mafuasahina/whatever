@@ -83,10 +83,21 @@ local function moveNearbyPlayers(localRoot)
 	end
 end
 
-task.spawn(function()
-	while true do
-		local foundTarget = nil
+RunService.RenderStepped:Connect(function()
+	if slayTarget and slayTarget.Character then
+		local humanoid = slayTarget.Character:FindFirstChild("Humanoid")
+		local char = slayTarget.Character
+		local stompable = char:FindFirstChild("canBeStomped")
+		local carried = char:FindFirstChild("BeingCarried")
+		local pvp = char:FindFirstChild("hasPvpOn")
 
+		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp) then
+			slayTarget = nil
+			isSlaying = false
+		end
+	end
+
+	if not slayTarget then
 		for _, player in ipairs(Players:GetPlayers()) do
 			if player ~= LocalPlayer then
 				local char = player.Character
@@ -100,17 +111,13 @@ task.spawn(function()
 
 				if humanoid and stompable and humanoid.Health > 1 and not carried and pvp and head then
 					if head.Position.Y < 300 then
-						foundTarget = player
+						slayTarget = player
+						isSlaying = true
 						break
 					end
 				end
 			end
 		end
-
-		slayTarget = foundTarget
-		isSlaying = foundTarget ~= nil
-
-		task.wait(0.65)
 	end
 end)
 
@@ -136,7 +143,6 @@ RunService.Heartbeat:Connect(function()
 		moveNearbyPlayers(root)
 	end
 end)
-
 
 RunService.RenderStepped:Connect(function()
 	Net:FindFirstChild("RF/SalonPunch"):InvokeServer()
