@@ -89,7 +89,7 @@ RunService.RenderStepped:Connect(function()
 		local carried = char:FindFirstChild("BeingCarried")
 		local pvp = char:FindFirstChild("hasPvpOn")
 
-		if humanoid and (not stompable or humanoid.Health > 1 or carried or not pvp) then
+		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp) then
 			slayTarget = nil
 			isSlaying = false
 		end
