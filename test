@@ -49,15 +49,9 @@ local function fireHits()
 end
 
 local function teleportToSky(character)
-	local bodyParts = {}
-	for _, part in ipairs(character:GetChildren()) do
-		if part:IsA("BasePart") then
-			table.insert(bodyParts, part)
-		end
-	end
-
-	for _, part in ipairs(bodyParts) do
-		part.CFrame = CFrame.new(0, 1000, 0)
+	local root = character:FindFirstChild("LowerTorso")
+	if root then
+		root.CFrame = CFrame.new(0, 1000, 0)
 	end
 end
 
@@ -135,30 +129,21 @@ end)
 
 RunService.Heartbeat:Connect(function()
 	local char = LocalPlayer.Character
-	local bodyParts = {}
-	if char then
-		for _, part in ipairs(char:GetChildren()) do
-			if part:IsA("BasePart") then
-				table.insert(bodyParts, part)
-			end
-		end
-	end
-	if not char or #bodyParts == 0 then return end
+	local root = char and char:FindFirstChild("LowerTorso")
+	if not char or not root then return end
 
 	if isSlaying and slayTarget and slayTarget.Character then
 		local targetChar = slayTarget.Character
 		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
 
 		if targetroot then
-			for _, part in ipairs(bodyParts) do
-				part.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 2, 0)) * CFrame.Angles(0, math.rad(math.random(0, 360)), 0)
-			end
+			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 3, 0)) * CFrame.Angles(0, math.rad(math.random(0, 360)), 0)
 			fireSlay()
 		end
 	else
 		fireHits()
 		teleportToSky(char)
-		moveNearbyPlayers(bodyParts[1])
+		moveNearbyPlayers(root)
 	end
 end)
 
