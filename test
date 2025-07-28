@@ -156,8 +156,12 @@ RunService.RenderStepped:Connect(function()
 	end
 end)
 
+
 for _, obj in pairs(workspace:GetChildren()) do
-	if obj ~= workspace:FindFirstChild("Characters") and not obj:IsA("Camera") and obj ~= workspace.Terrain then
+	if obj ~= workspace:FindFirstChild("Characters") 
+		and obj ~= workspace:FindFirstChild("Debris") 
+		and not obj:IsA("Camera") 
+		and obj ~= workspace.Terrain then
 		obj:Destroy()
 	end
 end
