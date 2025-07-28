@@ -74,7 +74,7 @@ local function moveNearbyPlayers(localRoot)
 
 			if humanoid and root and not stompable and pvp then
 				root.CanCollide = false
-				root.Size = Vector3.new(20, 20, 20)
+				root.Size = Vector3.new(200, 200, 200)
 				root.CFrame = localRoot.CFrame * CFrame.new(0, 0, -10)
 			end
 		end
@@ -116,7 +116,7 @@ RunService.RenderStepped:Connect(function()
 				local pvp = char:FindFirstChild("hasPvpOn")
 
 				if humanoid and stompable and humanoid.Health > 1 and not carried and pvp and root then
-					if root.Position.Y < 300 then
+					if root.Position.Y < 600 then
 						slayTarget = player
 						isSlaying = true
 						break
@@ -137,7 +137,7 @@ RunService.Heartbeat:Connect(function()
 		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
 
 		if targetroot then
-			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 1000, 0)) * CFrame.Angles(0, math.rad(math.random(0, 360)), 0)
+			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 100, 0)) * CFrame.Angles(0, math.rad(math.random(0, 360)), 0)
 			fireSlay()
 		end
 	else
