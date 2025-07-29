@@ -125,6 +125,8 @@ RunService.Heartbeat:Connect(function()
 	local root = char and char:FindFirstChild("HumanoidRootPart")
 	if not char or not root then return end
 
+	moveNearbyPlayers(root)
+
 	if isSlaying and slayTarget and slayTarget.Character then
 		local targetChar = slayTarget.Character
 		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
@@ -136,7 +138,6 @@ RunService.Heartbeat:Connect(function()
 	else
 		fireHits()
 		teleportToSky(char)
-		moveNearbyPlayers(root)
 	end
 end)
 
