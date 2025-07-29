@@ -138,7 +138,7 @@ RunService.Heartbeat:Connect(function()
 		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
 
 		if targetroot then
-			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 3, 0)) * CFrame.Angles(0, math.rad(180 * math.random(0, 1)), 0)
+			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 2, 0)) * CFrame.Angles(0, math.rad(180 * math.random(0, 1)), 0)
 			fireSlay()
 		end
 	else
