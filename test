@@ -73,7 +73,7 @@ local function moveNearbyPlayers(localRoot)
 			local stompable = char:FindFirstChild("canBeStomped")
 			local carried = char:FindFirstChild("BeingCarried")
 
-			if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 3 or carried) and pvp and root then
+			if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 2 or carried) and pvp and root then
 				root.CanCollide = false
 				root.Size = Vector3.new(20, 20, 20)
 				root.CFrame = localRoot.CFrame * CFrame.new(0, 0, -10)
@@ -98,7 +98,7 @@ RunService.RenderStepped:Connect(function()
 		local stompable = char:FindFirstChild("canBeStomped")
 		local pvp = char:FindFirstChild("hasPvpOn")
 
-		if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 3 or carried or not pvp or root.Position.Y > 300) then
+		if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 2 or carried or not pvp or root.Position.Y > 300) then
 			slayTarget = nil
 			isSlaying = false
 		end
@@ -116,7 +116,7 @@ RunService.RenderStepped:Connect(function()
 				local stompable = char:FindFirstChild("canBeStomped")
 				local pvp = char:FindFirstChild("hasPvpOn")
 
-				if humanoid and stompable and humanoid.Health >= 1 and humanoid.Health <= 3 and not carried and pvp and root then
+				if humanoid and stompable and humanoid.Health >= 1 and humanoid.Health <= 2 and not carried and pvp and root then
 					if root.Position.Y < 300 then
 						slayTarget = player
 						isSlaying = true
