@@ -142,7 +142,7 @@ RunService.Heartbeat:Connect(function()
 		local targethead = targetChar:FindFirstChild("Head")
 
 		if targetroot then
-			root.CFrame = CFrame.new(((math.random(1, 2) == 1 and targetRoot or targetHead).Position) + Vector3.new(0, 2.5, 0))
+			root.CFrame = CFrame.new(((math.random(1, 2) == 1 and targetroot or targethead).Position) + Vector3.new(0, 2.5, 0))
 			fireSlay()
 		end
 	else
