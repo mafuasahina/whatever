@@ -1,3 +1,4 @@
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/test"))()
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -73,7 +74,7 @@ local function moveNearbyPlayers(localRoot)
 			local stompable = char:FindFirstChild("canBeStomped")
 			local carried = char:FindFirstChild("BeingCarried")
 
-			if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 3 or carried) and pvp and root then
+			if humanoid and (not stompable or humanoid.Health < 1 or carried) and pvp and root then
 				root.CanCollide = false
 				root.Size = Vector3.new(20, 20, 20)
 				root.CFrame = localRoot.CFrame * CFrame.new(0, 0, -10)
@@ -98,7 +99,7 @@ RunService.RenderStepped:Connect(function()
 		local stompable = char:FindFirstChild("canBeStomped")
 		local pvp = char:FindFirstChild("hasPvpOn")
 
-		if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 3 or carried or not pvp or root.Position.Y > 300) then
+		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp or root.Position.Y > 300) then
 			slayTarget = nil
 			isSlaying = false
 		end
@@ -116,7 +117,7 @@ RunService.RenderStepped:Connect(function()
 				local stompable = char:FindFirstChild("canBeStomped")
 				local pvp = char:FindFirstChild("hasPvpOn")
 
-				if humanoid and stompable and humanoid.Health >= 1 and humanoid.Health <= 3 and not carried and pvp and root then
+				if humanoid and stompable and humanoid.Health >= 1 and not carried and pvp and root then
 					if root.Position.Y < 300 then
 						slayTarget = player
 						isSlaying = true
@@ -138,7 +139,7 @@ RunService.Heartbeat:Connect(function()
 		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
 
 		if targetroot then
-			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 2, 0)) * CFrame.Angles(0, math.rad(180 * math.random(0, 1)), 0)
+			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 3, 0)) * CFrame.Angles(math.rad(180), math.rad(180 * math.random(0, 1)), 0)
 			fireSlay()
 		end
 	else
