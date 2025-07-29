@@ -73,8 +73,9 @@ local function moveNearbyPlayers(localRoot)
 			local root = char:FindFirstChild("HumanoidRootPart")
 			local pvp = char:FindFirstChild("hasPvpOn")
 			local stompable = char:FindFirstChild("canBeStomped")
+			local carried = char:FindFirstChild("BeingCarried")
 
-			if humanoid and root and not stompable and pvp then
+			if humanoid and (not stompable or humanoid.Health < 1 or carried) and pvp and root then
 				root.CanCollide = false
 				root.Size = Vector3.new(20, 20, 20)
 				root.CFrame = localRoot.CFrame * CFrame.new(0, 0, -10)
