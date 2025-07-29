@@ -95,11 +95,12 @@ RunService.RenderStepped:Connect(function()
 		local char = slayTarget.Character
 		local humanoid = char:FindFirstChild("Humanoid")
 		local root = char:FindFirstChild("HumanoidRootPart")
+		local head = char:FindFirstChild("Head")
 		local carried = char:FindFirstChild("BeingCarried")
 		local stompable = char:FindFirstChild("canBeStomped")
 		local pvp = char:FindFirstChild("hasPvpOn")
 
-		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp or root.Position.Y > 300) then
+		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp or root.Position.Y > 300 or head.Position.Y > 300) then
 			slayTarget = nil
 			isSlaying = false
 		end
@@ -113,12 +114,13 @@ RunService.RenderStepped:Connect(function()
 
 				local humanoid = char:FindFirstChild("Humanoid")
 				local root = char:FindFirstChild("HumanoidRootPart")
+				local head = char:FindFirstChild("Head")
 				local carried = char:FindFirstChild("BeingCarried")
 				local stompable = char:FindFirstChild("canBeStomped")
 				local pvp = char:FindFirstChild("hasPvpOn")
 
 				if humanoid and stompable and humanoid.Health >= 1 and not carried and pvp and root then
-					if root.Position.Y < 300 then
+					if root.Position.Y < 300 and head.Position.Y < 300 then
 						slayTarget = player
 						isSlaying = true
 						break
@@ -137,9 +139,10 @@ RunService.Heartbeat:Connect(function()
 	if isSlaying and slayTarget and slayTarget.Character then
 		local targetChar = slayTarget.Character
 		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
+		local targethead = targetChar:FindFirstChild("Head")
 
 		if targetroot then
-			root.CFrame = CFrame.new(targetroot.Position + Vector3.new(0, 5, 0)) * CFrame.Angles(math.rad(math.random(0, 360)), math.rad(math.random(0, 360)), math.rad(math.random(0, 360)))
+			root.CFrame = CFrame.new(((math.random(1, 2) == 1 and targetRoot or targetHead).Position) + Vector3.new(0, 2.5, 0))
 			fireSlay()
 		end
 	else
