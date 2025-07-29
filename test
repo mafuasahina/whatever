@@ -111,11 +111,9 @@ RunService.RenderStepped:Connect(function()
 				local root = char:FindFirstChild("HumanoidRootPart")
 
 				if humanoid and root.Position.Y < 300 then
-				
 					slayTarget = player
 					isSlaying = true
 					break
-				
 				end
 			end
 		end
