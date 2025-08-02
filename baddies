@@ -91,7 +91,7 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService.Heartbeat:Connect(function()
 	if slayTarget and slayTarget.Character then
 		local char = slayTarget.Character
 		local humanoid = char:FindFirstChild("Humanoid")
