@@ -120,7 +120,7 @@ RunService.Heartbeat:Connect(function()
 		local stompable = char:FindFirstChild("canBeStomped")
 		local pvp = char:FindFirstChild("hasPvpOn")
 
-		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp) then
+		if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 5 or carried or not pvp) then
 			slayTarget = nil
 			isSlaying = false
 		end
@@ -139,7 +139,7 @@ RunService.Heartbeat:Connect(function()
 				local stompable = char:FindFirstChild("canBeStomped")
 				local pvp = char:FindFirstChild("hasPvpOn")
 
-				if humanoid and stompable and humanoid.Health >= 1 and not carried and pvp and root then
+				if humanoid and stompable and humanoid.Health >= 1 and humanoid.Health <= 5 and not carried and pvp and root then
 					slayTarget = player
 					isSlaying = true
 					break
