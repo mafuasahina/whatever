@@ -104,8 +104,8 @@ player.CharacterAdded:Connect(updateHRP)
 if player.Character then updateHRP() end
 
 local runningConnection
-local Toggle
 
+local Toggle
 Toggle = Tab:CreateToggle({
     Name = "Autofarm [Shoot shark once to enable]",
     CurrentValue = false,
@@ -118,22 +118,15 @@ Toggle = Tab:CreateToggle({
                     Content = "Shoot the shark first before turning on",
                     Duration = 4
                 })
-                Toggle:Set(false)
+                task.delay(0.2, function()
+                    Toggle:Set(false)
+                end)
                 return
             end
             runningConnection = RunService.Heartbeat:Connect(function(dt)
-                if not remote then
-                    Rayfield:Notify({
-                        Title = "Error",
-                        Content = "Remote lost, turning off",
-                        Duration = 4
-                    })
-                    Toggle:Set(false)
-                    return
-                end
                 KillShark()
                 getShark()
-                if not hrp then return end
+                if not hrp or not remote then return end
                 local chinook = workspace:FindFirstChild("Chinook")
                 local interior = chinook and chinook:FindFirstChild("interior")
                 if interior and not sharkName then
