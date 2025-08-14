@@ -1,3 +1,5 @@
+--loadstring(game:HttpGet('raw.githubusercontent.com/mafuasahina/whatever/main/grace'))()
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local RunService = game:GetService("RunService")
