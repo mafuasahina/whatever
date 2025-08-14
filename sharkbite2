@@ -1,4 +1,5 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/sharkbite2"))()
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -150,4 +151,34 @@ Toggle = Tab:CreateToggle({
             end
         end
     end,
+})
+
+Tab:CreateButton({
+    Name = "Highlight shark [ESP]",
+    Callback = function()
+        local sharksFolder = workspace:FindFirstChild("Sharks")
+        if sharksFolder then
+            for _, shark in ipairs(sharksFolder:GetChildren()) do
+                if shark:IsA("Model") then
+                    for _, part in ipairs(shark:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            local highlight = Instance.new("Highlight")
+                            highlight.Adornee = part
+                            highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                            highlight.FillTransparency = 0.5
+                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                            highlight.OutlineTransparency = 0
+                            highlight.Parent = part
+                        end
+                    end
+                end
+            end
+        else
+            Rayfield:Notify({
+                Title = "Info",
+                Content = "No sharks found to highlight",
+                Duration = 3
+            })
+        end
+    end
 })
