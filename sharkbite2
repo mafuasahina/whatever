@@ -205,7 +205,7 @@ Tab:CreateToggle({
 })
 
 Tab:CreateButton({
-    Name = "Highlight shark [ESP]",
+    Name = "Highlight sharks [ESP]",
     Callback = function()
         local sharksFolder = workspace:FindFirstChild("Sharks")
         if not sharksFolder or #sharksFolder:GetChildren() == 0 then
