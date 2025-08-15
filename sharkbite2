@@ -106,22 +106,26 @@ if player.Character then updateHRP() end
 local runningConnection
 local Toggle
 
-local Toggle
 Toggle = Tab:CreateToggle({
     Name = "Autofarm [Shoot shark once to enable]",
     CurrentValue = false,
     Flag = "AutoKillShark",
     Callback = function(on)
         if on then
-            if not remote then
-                Rayfield:Notify({
-                    Title = "Error",
-                    Content = "Shoot the shark first before turning on",
-                    Duration = 4
-                })
-                return
-            end
+            local lastNotify = 0
             runningConnection = RunService.Heartbeat:Connect(function(dt)
+                if not remote then
+                    if tick() - lastNotify >= 3 then
+                        Rayfield:Notify({
+                            Title = "Waiting for shark to be shot",
+                            Content = "Shoot shark to enable autofarm",
+                            Duration = 3
+                        })
+                        lastNotify = tick()
+                    end
+                    return
+                end
+
                 KillShark()
                 getShark()
                 if not hrp or not remote then return end
@@ -143,6 +147,7 @@ Toggle = Tab:CreateToggle({
         end
     end,
 })
+
 
 local AutoWinConnection
 
