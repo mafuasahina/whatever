@@ -1,35 +1,19 @@
---loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/sharkbite2"))()
-
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
 local Window = Rayfield:CreateWindow({
     Name = "Sharkbite 2",
     LoadingTitle = "Sharkbite 2 whatever",
     LoadingSubtitle = "by mafuyu",
     Theme = "Default",
     ToggleUIKeybind = "K",
-    ConfigurationSaving = {
-        Enabled = true,
-        FolderName = nil,
-        FileName = "SharkConfig"
-    },
-    Discord = {
-        Enabled = false,
-        Invite = "",
-        RememberJoins = true
-    },
+    ConfigurationSaving = {Enabled = true,FolderName = nil,FileName = "SharkConfig"},
+    Discord = {Enabled = false,Invite = "",RememberJoins = true},
     KeySystem = false
 })
-
 local Tab = Window:CreateTab("Main", 4483362458)
-
-local remote = nil
+local remote, sharkName, hrp
 local player = game.Players.LocalPlayer
 local backpack = player:WaitForChild("Backpack")
-local character = player.Character or player.CharacterAdded:Wait()
-local sharkName = nil
 local remotesFolder = game:GetService("ReplicatedStorage"):WaitForChild("Projectiles"):WaitForChild("Events"):WaitForChild("Weapons"):WaitForChild("remotes")
-
 local function hookRemote(remoteObject)
     local mt = getrawmetatable(game)
     setreadonly(mt, false)
@@ -42,19 +26,16 @@ local function hookRemote(remoteObject)
         return oldNamecall(self, ...)
     end)
 end
-
 for _, child in ipairs(remotesFolder:GetChildren()) do
     if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
         hookRemote(child)
     end
 end
-
 remotesFolder.ChildAdded:Connect(function(child)
     if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
         hookRemote(child)
     end
 end)
-
 local function getShark()
     local sharksFolder = workspace:FindFirstChild("Sharks")
     if sharksFolder then
@@ -67,46 +48,33 @@ local function getShark()
     end
     sharkName = nil
 end
-
 local function KillShark()
     for _, tool in ipairs(backpack:GetChildren()) do
         if tool:IsA("Tool") then
-            tool.Parent = character
+            tool.Parent = player.Character
         end
     end
     for j = 1, 40 do
         if sharkName and remote then
             local shark = workspace:WaitForChild("Sharks"):FindFirstChild(sharkName)
-            game:GetService("ReplicatedStorage")
-                :WaitForChild("Projectiles")
-                :WaitForChild("Events")
-                :WaitForChild("Weapons")
-                :WaitForChild("remotes")
-                :WaitForChild(remote):FireServer(shark)
+            game:GetService("ReplicatedStorage").Projectiles.Events.Weapons.remotes[remote]:FireServer(shark)
         end
     end
 end
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local center = Vector3.new(0, 0, 0)
-local radius = 1000
-local speed = 2
-local angle = 0
-local hrp
-
+local center, radius, speed, angle = Vector3.new(0,0,0), 1000, 2, 0
 local function updateHRP()
     local character = player.Character or player.CharacterAdded:Wait()
     hrp = character:WaitForChild("HumanoidRootPart")
 end
-
-player.CharacterAdded:Connect(updateHRP)
+player.CharacterAdded:Connect(function()
+    updateHRP()
+    backpack = player:WaitForChild("Backpack")
+end)
 if player.Character then updateHRP() end
-
 local runningConnection
-local Toggle
-
-Toggle = Tab:CreateToggle({
+Tab:CreateToggle({
     Name = "Autofarm [Shoot shark once to enable]",
     CurrentValue = false,
     Flag = "AutoKillShark",
@@ -116,16 +84,11 @@ Toggle = Tab:CreateToggle({
             runningConnection = RunService.Heartbeat:Connect(function(dt)
                 if not remote then
                     if tick() - lastNotify >= 3 then
-                        Rayfield:Notify({
-                            Title = "Waiting for shark to be shot",
-                            Content = "Shoot shark to enable autofarm",
-                            Duration = 3
-                        })
+                        Rayfield:Notify({Title = "Waiting for shark to be shot",Content = "Shoot shark to enable autofarm",Duration = 3})
                         lastNotify = tick()
                     end
                     return
                 end
-
                 KillShark()
                 getShark()
                 if not hrp or not remote then return end
@@ -140,22 +103,14 @@ Toggle = Tab:CreateToggle({
                 end
             end)
         else
-            if runningConnection then
-                runningConnection:Disconnect()
-                runningConnection = nil
-            end
+            if runningConnection then runningConnection:Disconnect() runningConnection = nil end
         end
     end,
 })
-
-
 local AutoWinConnection
-
 local function getNearestAliveSurvivor()
-    local nearestPlayer = nil
-    local nearestDist = math.huge
+    local nearestPlayer, nearestDist = nil, math.huge
     local myPos = hrp and hrp.Position or Vector3.zero
-
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
             local char = plr.Character
@@ -172,7 +127,6 @@ local function getNearestAliveSurvivor()
     end
     return nearestPlayer
 end
-
 Tab:CreateToggle({
     Name = "Auto win as shark",
     CurrentValue = false,
@@ -196,57 +150,40 @@ Tab:CreateToggle({
                 end
             end)
         else
-            if AutoWinConnection then
-                AutoWinConnection:Disconnect()
-                AutoWinConnection = nil
-            end
+            if AutoWinConnection then AutoWinConnection:Disconnect() AutoWinConnection = nil end
         end
     end
 })
-
 local sharkESPConnection = {}
 local function setSharkESP(enabled)
     local sharksFolder = workspace:FindFirstChild("Sharks")
     if not sharksFolder then return end
-
-    for _, conn in ipairs(sharkESPConnection) do
-        conn:Disconnect()
-    end
+    for _, conn in ipairs(sharkESPConnection) do conn:Disconnect() end
     table.clear(sharkESPConnection)
-
     for _, shark in ipairs(sharksFolder:GetDescendants()) do
         if shark:IsA("Highlight") then
             if enabled then
                 shark.Enabled = true
                 shark.OutlineTransparency = 0
                 table.insert(sharkESPConnection, shark:GetPropertyChangedSignal("Enabled"):Connect(function()
-                    if not shark.Enabled then
-                        shark.Enabled = true
-                    end
+                    if not shark.Enabled then shark.Enabled = true end
                 end))
                 table.insert(sharkESPConnection, shark:GetPropertyChangedSignal("OutlineTransparency"):Connect(function()
-                    if shark.OutlineTransparency ~= 0 then
-                        shark.OutlineTransparency = 0
-                    end
+                    if shark.OutlineTransparency ~= 0 then shark.OutlineTransparency = 0 end
                 end))
             else
                 shark.Enabled = false
                 shark.OutlineTransparency = 1
                 table.insert(sharkESPConnection, shark:GetPropertyChangedSignal("Enabled"):Connect(function()
-                    if shark.Enabled then
-                        shark.Enabled = false
-                    end
+                    if shark.Enabled then shark.Enabled = false end
                 end))
                 table.insert(sharkESPConnection, shark:GetPropertyChangedSignal("OutlineTransparency"):Connect(function()
-                    if shark.OutlineTransparency ~= 1 then
-                        shark.OutlineTransparency = 1
-                    end
+                    if shark.OutlineTransparency ~= 1 then shark.OutlineTransparency = 1 end
                 end))
             end
         end
     end
 end
-
 local function watchForNewSharks(toggleState)
     local sharksFolder = workspace:FindFirstChild("Sharks")
     if sharksFolder then
@@ -257,7 +194,6 @@ local function watchForNewSharks(toggleState)
         end))
     end
 end
-
 Tab:CreateToggle({
     Name = "Highlight sharks [ESP]",
     CurrentValue = false,
