@@ -147,6 +147,56 @@ Toggle = Tab:CreateToggle({
     end,
 })
 
+local AutoWinConnection
+
+local function getNearestSurvivor()
+    local nearestPlayer = nil
+    local nearestDist = math.huge
+    local myPos = hrp and hrp.Position or Vector3.zero
+
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Team and plr.Team.Name == "Survivor" and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
+            local dist = (plr.Character.HumanoidRootPart.Position - myPos).Magnitude
+            if dist < nearestDist then
+                nearestDist = dist
+                nearestPlayer = plr
+            end
+        end
+    end
+    return nearestPlayer
+end
+
+Tab:CreateToggle({
+    Name = "Auto win as shark",
+    CurrentValue = false,
+    Flag = "AutoWinShark",
+    Callback = function(state)
+        if state then
+            AutoWinConnection = RunService.RenderStepped:Connect(function()
+                if player.Team and player.Team.Name == "Shark" and hrp then
+                    local targetPlayer = getNearestSurvivor()
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+                        local sharksFolder = workspace:WaitForChild("Sharks")
+                        for _, shark in ipairs(sharksFolder:GetChildren()) do
+                            for _, part in ipairs(shark:GetDescendants()) do
+                                if part:IsA("BasePart") and part.Name == "Ball" then
+                                    part.CFrame = CFrame.new(targetPos)
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+        else
+            if AutoWinConnection then
+                AutoWinConnection:Disconnect()
+                AutoWinConnection = nil
+            end
+        end
+    end
+})
+
 Tab:CreateButton({
     Name = "Highlight shark [ESP]",
     Callback = function()
