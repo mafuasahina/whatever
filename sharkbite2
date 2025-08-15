@@ -95,6 +95,20 @@ local speed = 2
 local angle = 0
 local hrp
 
+local function getSharkPosition()
+    if sharkName then
+        local shark = workspace:FindFirstChild("Sharks"):FindFirstChild(sharkName)
+        if shark and shark:FindFirstChild("HumanoidRootPart") then
+            return shark.HumanoidRootPart.Position
+        elseif shark and shark.PrimaryPart then
+            return shark.PrimaryPart.Position
+        elseif shark then
+            return shark:GetModelCFrame().Position
+        end
+    end
+    return center
+end
+
 local function updateHRP()
     character = player.Character or player.CharacterAdded:Wait()
     backpack = player:WaitForChild("Backpack")
@@ -135,6 +149,7 @@ Toggle = Tab:CreateToggle({
                     hrp.CFrame = interior.CFrame
                 elseif sharkName then
                     angle += speed * dt
+                    center = getSharkPosition()
                     local offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius
                     hrp.CFrame = CFrame.new(center + offset, center)
                 end
