@@ -179,7 +179,7 @@ Tab:CreateToggle({
     Flag = "AutoWinShark",
     Callback = function(state)
         if state then
-            AutoWinConnection = RunService.RenderStepped:Connect(function()
+            AutoWinConnection = RunService.Heartbeat:Connect(function()
                 if player.Team and player.Team.Name == "Shark" and hrp then
                     local targetPlayer = getNearestAliveSurvivor()
                     if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
