@@ -208,28 +208,29 @@ Tab:CreateButton({
     Name = "Highlight shark [ESP]",
     Callback = function()
         local sharksFolder = workspace:FindFirstChild("Sharks")
-        if sharksFolder then
-            for _, shark in ipairs(sharksFolder:GetChildren()) do
-                if shark:IsA("Model") then
-                    for _, part in ipairs(shark:GetDescendants()) do
-                        if part:IsA("BasePart") then
-                            local highlight = Instance.new("Highlight")
-                            highlight.Adornee = part
-                            highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                            highlight.FillTransparency = 0.5
-                            highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                            highlight.OutlineTransparency = 0
-                            highlight.Parent = part
-                        end
-                    end
-                end
-            end
-        else
+        if not sharksFolder or #sharksFolder:GetChildren() == 0 then
             Rayfield:Notify({
                 Title = "Info",
                 Content = "No sharks found to highlight",
                 Duration = 3
             })
+            return
+        end
+
+        for _, shark in ipairs(sharksFolder:GetChildren()) do
+            if shark:IsA("Model") then
+                for _, part in ipairs(shark:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        local highlight = Instance.new("Highlight")
+                        highlight.Adornee = part
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                        highlight.FillTransparency = 0.5
+                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        highlight.OutlineTransparency = 0
+                        highlight.Parent = part
+                    end
+                end
+            end
         end
     end
 })
