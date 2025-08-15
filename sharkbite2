@@ -74,7 +74,7 @@ local function KillShark()
             tool.Parent = character
         end
     end
-    for j = 1, 20 do
+    for j = 1, 40 do
         if sharkName and remote then
             local shark = workspace:WaitForChild("Sharks"):FindFirstChild(sharkName)
             game:GetService("ReplicatedStorage")
