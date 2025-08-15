@@ -146,7 +146,7 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Main", "home")
 
 MainTab:CreateToggle({
-    Name = "Grace Reprieve [ONLY ACTIVATE IN REPRIEVE]",
+    Name = "Grace Reprieve [REPRIEVE GAMEMODE]",
     CurrentValue = false,
     Flag = "GraceReprieve",
     Callback = function(Value)
@@ -159,7 +159,7 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateToggle({
-    Name = "Grace Regular [ONLY ACTIVATE IN A NORMAL GAME]",
+    Name = "Grace Regular [NORMAL OR ZEN GAMEMODE]",
     CurrentValue = false,
     Flag = "GraceRegular",
     Callback = function(Value)
@@ -195,6 +195,15 @@ MainTab:CreateButton({
     Callback = function()
         pcall(function()
             game:GetService("ReplicatedStorage"):WaitForChild("BuyKCrown"):InvokeServer()
+        end)
+    end,
+})
+
+MainTab:CreateButton({
+    Name = "Return to Lobby",
+    Callback = function()
+        pcall(function()
+            ReplicatedStorage:WaitForChild("byebyemyFRIENDbacktothelobby"):FireServer()
         end)
     end,
 })
