@@ -149,17 +149,22 @@ Toggle = Tab:CreateToggle({
 
 local AutoWinConnection
 
-local function getNearestSurvivor()
+local function getNearestAliveSurvivor()
     local nearestPlayer = nil
     local nearestDist = math.huge
     local myPos = hrp and hrp.Position or Vector3.zero
 
     for _, plr in ipairs(Players:GetPlayers()) do
-        if plr ~= player and plr.Team and plr.Team.Name == "Survivor" and plr.Character and plr.Character:FindFirstChild("HumanoidRootPart") then
-            local dist = (plr.Character.HumanoidRootPart.Position - myPos).Magnitude
-            if dist < nearestDist then
-                nearestDist = dist
-                nearestPlayer = plr
+        if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
+            local char = plr.Character
+            local humanoid = char and char:FindFirstChild("Humanoid")
+            local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
+            if humanoid and humanoid.Health > 0 and hrpTarget then
+                local dist = (hrpTarget.Position - myPos).Magnitude
+                if dist < nearestDist then
+                    nearestDist = dist
+                    nearestPlayer = plr
+                end
             end
         end
     end
@@ -174,7 +179,7 @@ Tab:CreateToggle({
         if state then
             AutoWinConnection = RunService.RenderStepped:Connect(function()
                 if player.Team and player.Team.Name == "Shark" and hrp then
-                    local targetPlayer = getNearestSurvivor()
+                    local targetPlayer = getNearestAliveSurvivor()
                     if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
                         local targetPos = targetPlayer.Character.HumanoidRootPart.Position
                         local sharksFolder = workspace:WaitForChild("Sharks")
