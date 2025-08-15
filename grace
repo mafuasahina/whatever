@@ -189,3 +189,12 @@ MainTab:CreateButton({
         end)
     end,
 })
+
+MainTab:CreateButton({
+    Name = "Buy crown [uses 100 keys]",
+    Callback = function()
+        pcall(function()
+            game:GetService("ReplicatedStorage"):WaitForChild("BuyKCrown"):InvokeServer()
+        end)
+    end,
+})
