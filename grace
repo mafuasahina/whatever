@@ -85,7 +85,7 @@ local function grace2()
         return a.number < b.number
     end)
 
-    if safeRoom and safeRoom:IsA("Model") and not safeRoom:IsDescendantOf(roomModels[#roomModels].model) and not safeRoom:IsDescendantOf(roomModels[1].model) and deathTimer.Value <= 0 then
+    if safeRoom and safeRoom:IsA("Model") and not safeRoom:IsDescendantOf(roomModels[#roomModels].model) and deathTimer.Value <= 0 then
         local vaultDoor = safeRoom:FindFirstChild("VaultDoor")
         local scale = safeRoom:FindFirstChild("Scale")
         local hitbox = scale and scale:FindFirstChild("hitbox")
