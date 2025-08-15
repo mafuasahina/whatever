@@ -119,9 +119,6 @@ Toggle = Tab:CreateToggle({
                     Content = "Shoot the shark first before turning on",
                     Duration = 4
                 })
-                task.delay(.2, function()
-                    Toggle:Set(false)
-                end)
                 return
             end
             runningConnection = RunService.Heartbeat:Connect(function(dt)
