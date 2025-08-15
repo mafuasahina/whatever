@@ -91,7 +91,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local center = Vector3.new(0, -100, 0)
 local radius = 1000
-local speed = 2 * math.pi
+local speed = 2
 local angle = 0
 local hrp
 
