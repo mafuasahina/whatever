@@ -141,7 +141,7 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Main", "home")
 
 MainTab:CreateToggle({
-    Name = "Grace Reprieve [REPRIEVE GAMEMODE]",
+    Name = "Grace Reprieve [USE IN REPRIEVE GAMEMODE]",
     CurrentValue = false,
     Flag = "GraceReprieve",
     Callback = function(Value)
@@ -154,7 +154,7 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateToggle({
-    Name = "Grace Regular [NORMAL OR ZEN GAMEMODE]",
+    Name = "Grace Regular [USE IN NORMAL OR ZEN GAMEMODE]",
     CurrentValue = false,
     Flag = "GraceRegular",
     Callback = function(Value)
