@@ -202,3 +202,16 @@ MainTab:CreateButton({
         end)
     end,
 })
+
+MainTab:CreateButton({
+    Name = "Get badges [kills you]",
+    Callback = function()
+        local player = game.Players.LocalPlayer
+        local scroll = player.PlayerGui.LobbyUI.Badges.Scroll
+        local remote = game.ReplicatedStorage:WaitForChild("BadgeGot")
+
+        for _, child in ipairs(scroll:GetChildren()) do
+            remote:FireServer(tonumber(child.Name))
+        end
+    end,
+})
