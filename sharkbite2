@@ -88,16 +88,10 @@ end
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local center = Vector3.new(0, 0, 0)
-local sideLength = 2000
-local speed = 300
-local path = {}
-table.insert(path, center + Vector3.new(sideLength/2, 0, sideLength/2))
-table.insert(path, center + Vector3.new(-sideLength/2, 0, sideLength/2))
-table.insert(path, center + Vector3.new(-sideLength/2, 0, -sideLength/2))
-table.insert(path, center + Vector3.new(sideLength/2, 0, -sideLength/2))
-local pathIndex = 1
+local radius = 1000
+local speed = 2
+local angle = 0
 local hrp
-local lastPos = path[1]
 
 local function updateHRP()
     character = player.Character or player.CharacterAdded:Wait()
@@ -140,16 +134,9 @@ Toggle = Tab:CreateToggle({
                             hrp.CFrame = interior.CFrame
                         end
                     else
-                        local targetPos = path[pathIndex]
-                        local direction = (targetPos - lastPos).Unit
-                        local move = direction * speed * dt
-                        if (targetPos - lastPos).Magnitude <= move.Magnitude then
-                            lastPos = targetPos
-                            pathIndex = pathIndex % #path + 1
-                        else
-                            lastPos = lastPos + move
-                        end
-                        hrp.CFrame = CFrame.new(lastPos, center)
+                        angle += speed * dt
+                        local offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius
+                        hrp.CFrame = CFrame.new(center + offset, center)
                     end
                 end
             end)
@@ -284,4 +271,4 @@ Tab:CreateToggle({
         setSharkESP(state)
         watchForNewSharks(state)
     end
-})
+}) 
