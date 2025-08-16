@@ -11,7 +11,6 @@ local function grace()
             workspace:WaitForChild("Script"):WaitForChild("BeaconPickup"):FireServer(child)
         end
     end
-
     for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
         if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
             if obj.Name:sub(1,4) == "Send" or obj.Name:sub(1,4) == "Kill" then
@@ -19,7 +18,6 @@ local function grace()
             end
         end
     end
-
     for _, item in ipairs(workspace:GetChildren()) do
         if item.Name ~= "Beacons" and not item:IsA("BaseScript") then
             if item.Name == "Rooms" then
@@ -37,10 +35,8 @@ local function grace2()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local root = character:WaitForChild("HumanoidRootPart")
-
     local roomsFolder = workspace:WaitForChild("Rooms")
     local roomModels = {}
-
     for _, model in ipairs(roomsFolder:GetChildren()) do
         if model:IsA("Model") then
             local num = tonumber(model.Name)
@@ -49,17 +45,11 @@ local function grace2()
             end
         end
     end
-
     for _, room in ipairs(roomModels) do
         local roomModel = room.model
         local vault = roomModel:FindFirstChild("VaultEntrance")
-
         if vault then
-            ReplicatedStorage.TriggerPrompt:FireServer(
-                vault:FindFirstChild("Hinged")
-                    :FindFirstChild("Cylinder")
-                    :FindFirstChild("ProximityPrompt")
-            )
+            ReplicatedStorage.TriggerPrompt:FireServer(vault:FindFirstChild("Hinged"):FindFirstChild("Cylinder"):FindFirstChild("ProximityPrompt"))
             ReplicatedStorage.Events.EnteredSaferoom:FireServer()
         else
             local toDestroy = {}
@@ -77,39 +67,31 @@ local function grace2()
             end
         end
     end
-
     local safeRoom = roomsFolder:FindFirstChild("SafeRoom", true)
     local deathTimer = workspace:FindFirstChild("DEATHTIMER")
-
     table.sort(roomModels, function(a, b)
         return a.number < b.number
     end)
-
     if safeRoom and safeRoom:IsA("Model") and not safeRoom:IsDescendantOf(roomModels[#roomModels].model) and not safeRoom:IsDescendantOf(roomModels[1].model) and deathTimer.Value <= 0 then
         local vaultDoor = safeRoom:FindFirstChild("VaultDoor")
         local scale = safeRoom:FindFirstChild("Scale")
         local hitbox = scale and scale:FindFirstChild("hitbox")
-
         if hitbox and hitbox:IsA("BasePart") then
             root.CFrame = hitbox.CFrame * CFrame.Angles(0, math.rad(225), 0)
             workspace.CurrentCamera.CFrame = root.CFrame
         end
     else
         local index = #roomModels
-
         if safeRoom and safeRoom:IsA("Model") and not deathTimer:GetAttribute("AUTOGO") then
             index = math.min(11, #roomModels)
         end
-
         local highestModel = roomModels[index] and roomModels[index].model
         local exit = highestModel and highestModel:FindFirstChild("Exit")
-
         if exit and exit:IsA("BasePart") then
             root.CFrame = exit.CFrame * CFrame.Angles(0, math.rad(45), 0)
             workspace.CurrentCamera.CFrame = root.CFrame
         end
     end
-
     for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
         if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
             if obj.Name:sub(1,4) == "Send" or obj.Name:sub(1,4) == "Kill" then
@@ -141,7 +123,7 @@ local Window = Rayfield:CreateWindow({
 local MainTab = Window:CreateTab("Main", "home")
 
 MainTab:CreateToggle({
-    Name = "Grace Reprieve [USE IN REPRIEVE GAMEMODE]",
+    Name = "Grace Reprieve [REPRIEVE GAMEMODE]",
     CurrentValue = false,
     Flag = "GraceReprieve",
     Callback = function(Value)
@@ -154,7 +136,7 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateToggle({
-    Name = "Grace Regular [USE IN NORMAL OR ZEN GAMEMODE]",
+    Name = "Grace Regular [NORMAL OR ZEN GAMEMODE]",
     CurrentValue = false,
     Flag = "GraceRegular",
     Callback = function(Value)
@@ -204,14 +186,29 @@ MainTab:CreateButton({
 })
 
 MainTab:CreateButton({
-    Name = "Get badges [kills you]",
+    Name = "Get badges [kills you | p.s. use in reprieve and lobby with all the modifiers if you want all the badges]",
     Callback = function()
-        local player = game.Players.LocalPlayer
-        local scroll = player.PlayerGui.LobbyUI.Badges.Scroll
-        local remote = game.ReplicatedStorage:WaitForChild("BadgeGot")
-
-        for _, child in ipairs(scroll:GetChildren()) do
-            remote:FireServer(tonumber(child.Name))
+        local HttpService = game:GetService("HttpService")
+        local BadgeGotRemote = game:GetService("ReplicatedStorage"):WaitForChild("BadgeGot")
+        local httpRequest = http_request or request
+        local universeId = game.GameId
+        local function getAllBadgeIds()
+            local badgeIds, cursor, url = {}, ""
+            repeat
+                url = ("https://badges.roproxy.com/v1/universes/%d/badges?limit=100&sortOrder=Asc%s"):format(universeId, cursor ~= "" and "&cursor=" .. cursor or "")
+                local response = httpRequest({Url = url, Method = "GET"})
+                if not response or response.StatusCode ~= 200 then break end
+                local data = HttpService:JSONDecode(response.Body)
+                for i = 1, #data.data do
+                    badgeIds[#badgeIds+1] = data.data[i].id
+                end
+                cursor = data.nextPageCursor or ""
+            until cursor == ""
+            return badgeIds
+        end
+        local allBadges = getAllBadgeIds()
+        for i = 1, #allBadges do
+            BadgeGotRemote:FireServer(allBadges[i])
         end
     end,
 })
