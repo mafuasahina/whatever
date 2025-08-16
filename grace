@@ -185,8 +185,10 @@ MainTab:CreateButton({
     end,
 })
 
+MainTab:CreateLabel("P.S. Use "Get badges" in Reprieve and in a game with all the modifiers if you want all the badges")
+
 MainTab:CreateButton({
-    Name = "Get badges [kills you | p.s. use in reprieve and lobby with all the modifiers if you want all the badges]",
+    Name = "Get badges [kills you]",
     Callback = function()
         local HttpService = game:GetService("HttpService")
         local BadgeGotRemote = game:GetService("ReplicatedStorage"):WaitForChild("BadgeGot")
