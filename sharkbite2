@@ -87,9 +87,9 @@ end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local center = Vector3.new(0, 0, 0)
+local center = Vector3.new(0, -100, 0)
 local radius = 1000
-local speed = 2
+local speed = math.pi * 2
 local angle = 0
 local hrp
 
@@ -135,15 +135,22 @@ Toggle = Tab:CreateToggle({
                         end
                     else
                         angle += speed * dt
-                        local offset = Vector3.new(math.cos(angle), 0, math.sin(angle)) * radius
+                        local t = (angle % (math.pi * 2)) / (math.pi * 2)
+                        local offset
+                        if t < 0.25 then
+                            offset = Vector3.new(radius, 0, -radius + 8 * radius * t)
+                        elseif t < 0.5 then
+                            offset = Vector3.new(radius - 8 * radius * (t - 0.25), 0, radius)
+                        elseif t < 0.75 then
+                            offset = Vector3.new(-radius, 0, radius - 8 * radius * (t - 0.5))
+                        else
+                            offset = Vector3.new(-radius + 8 * radius * (t - 0.75), 0, -radius)
+                        end
                         hrp.CFrame = CFrame.new(center + offset, center)
                     end
                 end
             end)
-            player.CharacterAdded:Connect(function()
-                task.wait(1)
-                updateHRP()
-            end)
+            player.CharacterAdded:Connect(updateHRP)
         else
             if runningConnection then
                 runningConnection:Disconnect()
@@ -198,10 +205,7 @@ Tab:CreateToggle({
                     end
                 end
             end)
-            player.CharacterAdded:Connect(function()
-                task.wait(1)
-                updateHRP()
-            end)
+            player.CharacterAdded:Connect(updateHRP)
         else
             if AutoWinConnection then
                 AutoWinConnection:Disconnect()
