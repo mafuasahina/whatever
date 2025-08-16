@@ -1,7 +1,6 @@
 --loadstring(game:HttpGet('https://raw.githubusercontent.com/mafuasahina/whatever/main/grace'))()
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -185,8 +184,6 @@ MainTab:CreateButton({
     end,
 })
 
-MainTab:CreateLabel("P.S. Use "Get badges" in Reprieve and in a game with all the modifiers if you want all the badges")
-
 MainTab:CreateButton({
     Name = "Get badges [kills you]",
     Callback = function()
@@ -214,3 +211,5 @@ MainTab:CreateButton({
         end
     end,
 })
+
+MainTab:CreateLabel("P.S. Use Get badges in Reprieve and in a game with all the modifiers if you want all the badges")
