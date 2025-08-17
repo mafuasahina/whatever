@@ -162,24 +162,27 @@ Toggle = Tab:CreateToggle({
     end,
 })
 
-local AutoWinThread
+local AutoWinConnection
 
-local function getRandomAliveSurvivor()
-    local survivors = {}
+local function getNearestAliveSurvivor()
+    local nearestPlayer = nil
+    local nearestDist = math.huge
+    local myPos = hrp and hrp.Position or Vector3.zero
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
             local char = plr.Character
             local humanoid = char and char:FindFirstChild("Humanoid")
             local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
             if humanoid and humanoid.Health > 0 and hrpTarget then
-                table.insert(survivors, plr)
+                local dist = (hrpTarget.Position - myPos).Magnitude
+                if dist < nearestDist then
+                    nearestDist = dist
+                    nearestPlayer = plr
+                end
             end
         end
     end
-    if #survivors > 0 then
-        return survivors[math.random(1, #survivors)]
-    end
-    return nil
+    return nearestPlayer
 end
 
 Tab:CreateToggle({
@@ -188,19 +191,16 @@ Tab:CreateToggle({
     Flag = "AutoWinShark",
     Callback = function(state)
         if state then
-            AutoWinThread = task.spawn(function()
-                while task.wait(1) do
-                    if not AutoWinThread then break end
-                    if player.Team and player.Team.Name == "Shark" and hrp then
-                        local targetPlayer = getRandomAliveSurvivor()
-                        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                            local targetPos = targetPlayer.Character.HumanoidRootPart.Position
-                            local sharksFolder = workspace:WaitForChild("Sharks")
-                            for _, shark in ipairs(sharksFolder:GetChildren()) do
-                                for _, part in ipairs(shark:GetDescendants()) do
-                                    if part:IsA("BasePart") and part.Name == "Ball" then
-                                        part.CFrame = CFrame.new(targetPos)
-                                    end
+            AutoWinConnection = RunService.Heartbeat:Connect(function()
+                if player.Team and player.Team.Name == "Shark" and hrp then
+                    local targetPlayer = getNearestAliveSurvivor()
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+                        local sharksFolder = workspace:WaitForChild("Sharks")
+                        for _, shark in ipairs(sharksFolder:GetChildren()) do
+                            for _, part in ipairs(shark:GetDescendants()) do
+                                if part:IsA("BasePart") and part.Name == "Ball" then
+                                    part.CFrame = CFrame.new(targetPos)
                                 end
                             end
                         end
@@ -209,7 +209,10 @@ Tab:CreateToggle({
             end)
             player.CharacterAdded:Connect(updateHRP)
         else
-            AutoWinThread = nil
+            if AutoWinConnection then
+                AutoWinConnection:Disconnect()
+                AutoWinConnection = nil
+            end
         end
     end
 })
