@@ -162,7 +162,7 @@ Toggle = Tab:CreateToggle({
     end,
 })
 
-local AutoWinConnection
+local AutoWinThread
 
 local function getRandomAliveSurvivor()
     local survivors = {}
@@ -188,9 +188,9 @@ Tab:CreateToggle({
     Flag = "AutoWinShark",
     Callback = function(state)
         if state then
-            AutoWinConnection = RunService.Heartbeat:Connect(function()
-                if not AutoWinConnection._lastTick or tick() - AutoWinConnection._lastTick >= 1 then
-                    AutoWinConnection._lastTick = tick()
+            AutoWinThread = task.spawn(function()
+                while task.wait(1) do
+                    if not AutoWinThread then break end
                     if player.Team and player.Team.Name == "Shark" and hrp then
                         local targetPlayer = getRandomAliveSurvivor()
                         if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
@@ -209,10 +209,7 @@ Tab:CreateToggle({
             end)
             player.CharacterAdded:Connect(updateHRP)
         else
-            if AutoWinConnection then
-                AutoWinConnection:Disconnect()
-                AutoWinConnection = nil
-            end
+            AutoWinThread = nil
         end
     end
 })
@@ -277,4 +274,4 @@ Tab:CreateToggle({
         setSharkESP(state)
         watchForNewSharks(state)
     end
-})
+}) 
