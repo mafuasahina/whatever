@@ -1,4 +1,5 @@
---loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/test"))()
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/baddies"))()
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -9,7 +10,12 @@ local Backpack = LocalPlayer:WaitForChild("Backpack")
 
 local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
 
+Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("Pan")
+Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("BeachShovel")
+
 local hitRemotes = {
+	Net:FindFirstChild("RE/SpatulaHit"),
+	Net:WaitForChild("RE/LunchTrayHit"),
 	Net:WaitForChild("RE/BeachShovelHit"),
 	Net:WaitForChild("RE/panHit"),
 	Net:WaitForChild("RE/pinkStopSignalHit"),
@@ -37,6 +43,8 @@ end
 
 buyTool("Pan", "Pan Buy button")
 buyTool("BeachShovel", "botonComprarShovel")
+buyTool("Spatula", "botonComprarSpatula")
+buyTool("Lunch Tray", "botonComprarLunchTray")
 
 local slayTarget = nil
 local isSlaying = false
@@ -49,20 +57,16 @@ local function fireHits()
 	end
 end
 
-local function teleportToSky(character)
-	local root = character:FindFirstChild("HumanoidRootPart")
-	if root then
-		root.CFrame = CFrame.new(0, 1000, 0)
-	end
-end
-
 local function fireSlay()
 	pcall(function()
 		stompEvent:FireServer()
 	end)
 end
 
-local function moveNearbyPlayers(localRoot)
+local function teleportUnderLowestHealthPlayer(localRoot)
+	local lowestHealthPlayer = nil
+	local lowestHealth = math.huge
+
 	for _, player in ipairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer then
 			local char = player.Character
@@ -74,10 +78,30 @@ local function moveNearbyPlayers(localRoot)
 			local stompable = char:FindFirstChild("canBeStomped")
 			local carried = char:FindFirstChild("BeingCarried")
 
-			if humanoid and (not stompable or carried) and pvp and root then
+			if humanoid and root and pvp and humanoid.Health > 1 and (not stompable or not carried) then
+				if humanoid.Health < lowestHealth then
+					lowestHealth = humanoid.Health
+					lowestHealthPlayer = player
+				end
+			end
+		end
+	end
+
+	if lowestHealthPlayer and lowestHealthPlayer.Character then
+		local targetRoot = lowestHealthPlayer.Character:FindFirstChild("HumanoidRootPart")
+		if targetRoot and localRoot then
+			localRoot.AssemblyLinearVelocity = Vector3.zero
+			localRoot.AssemblyAngularVelocity = Vector3.zero
+			localRoot.CFrame = CFrame.new(targetRoot.Position + Vector3.new(0, -8, 0))
+		end
+	end
+
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character then
+			local root = player.Character:FindFirstChild("HumanoidRootPart")
+			if root then
 				root.CanCollide = false
 				root.Size = Vector3.new(20, 20, 20)
-				root.CFrame = localRoot.CFrame * CFrame.new(0, 0, -10)
 			end
 		end
 	end
@@ -90,7 +114,7 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
-RunService.RenderStepped:Connect(function()
+RunService.Heartbeat:Connect(function()
 	if slayTarget and slayTarget.Character then
 		local char = slayTarget.Character
 		local humanoid = char:FindFirstChild("Humanoid")
@@ -100,7 +124,7 @@ RunService.RenderStepped:Connect(function()
 		local stompable = char:FindFirstChild("canBeStomped")
 		local pvp = char:FindFirstChild("hasPvpOn")
 
-		if humanoid and (not stompable or humanoid.Health < 1 or carried or not pvp or root.Position.Y > 300 or head.Position.Y > 300) then
+		if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 5 or carried or not pvp) then
 			slayTarget = nil
 			isSlaying = false
 		end
@@ -119,12 +143,10 @@ RunService.RenderStepped:Connect(function()
 				local stompable = char:FindFirstChild("canBeStomped")
 				local pvp = char:FindFirstChild("hasPvpOn")
 
-				if humanoid and stompable and humanoid.Health >= 1 and not carried and pvp and root then
-					if root.Position.Y < 300 and head.Position.Y < 300 then
-						slayTarget = player
-						isSlaying = true
-						break
-					end
+				if humanoid and stompable and humanoid.Health >= 1 and humanoid.Health <= 5 and not carried and pvp and root then
+					slayTarget = player
+					isSlaying = true
+					break
 				end
 			end
 		end
@@ -143,12 +165,13 @@ RunService.Heartbeat:Connect(function()
 
 		if targetroot then
 			root.CFrame = CFrame.new(((math.random(1, 2) == 1 and targetroot or targethead).Position) + Vector3.new(0, 4, 0))
+			root.AssemblyLinearVelocity = Vector3.zero
+			root.AssemblyAngularVelocity = Vector3.zero
 			fireSlay()
 		end
 	else
 		fireHits()
-		teleportToSky(char)
-		moveNearbyPlayers(root)
+		teleportUnderLowestHealthPlayer(root)
 	end
 end)
 
