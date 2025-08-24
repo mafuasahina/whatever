@@ -10,14 +10,9 @@ local Backpack = LocalPlayer:WaitForChild("Backpack")
 
 local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
 
-Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("Pan")
-Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("BeachShovel")
-
 local hitRemotes = {
 	Net:FindFirstChild("RE/SpatulaHit"),
 	Net:WaitForChild("RE/LunchTrayHit"),
-	Net:WaitForChild("RE/BeachShovelHit"),
-	Net:WaitForChild("RE/panHit"),
 	Net:WaitForChild("RE/pinkStopSignalHit"),
 	Net:WaitForChild("RE/baseballBatHit"),
 }
@@ -41,8 +36,6 @@ local function buyTool(toolName, buttonName)
 	end
 end
 
-buyTool("Pan", "Pan Buy button")
-buyTool("BeachShovel", "botonComprarShovel")
 buyTool("Spatula", "botonComprarSpatula")
 buyTool("Lunch Tray", "botonComprarLunchTray")
 
