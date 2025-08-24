@@ -14,6 +14,8 @@ Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("Pan")
 Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("BeachShovel")
 
 local hitRemotes = {
+	Net:FindFirstChild("RE/SpatulaHit"),
+	Net:WaitForChild("RE/LunchTrayHit"),
 	Net:WaitForChild("RE/BeachShovelHit"),
 	Net:WaitForChild("RE/panHit"),
 	Net:WaitForChild("RE/pinkStopSignalHit"),
@@ -41,6 +43,8 @@ end
 
 buyTool("Pan", "Pan Buy button")
 buyTool("BeachShovel", "botonComprarShovel")
+buyTool("Spatula", "botonComprarSpatula")
+buyTool("Lunch Tray", "botonComprarLunchTray")
 
 local slayTarget = nil
 local isSlaying = false
