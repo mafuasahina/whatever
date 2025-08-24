@@ -10,14 +10,9 @@ local Backpack = LocalPlayer:WaitForChild("Backpack")
 
 local Net = ReplicatedStorage:WaitForChild("Modules"):WaitForChild("Net")
 
-Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("Pan")
-Net:FindFirstChild("RF/EquipWeaponSkin"):InvokeServer("BeachShovel")
-
 local hitRemotes = {
 	Net:FindFirstChild("RE/SpatulaHit"),
 	Net:WaitForChild("RE/LunchTrayHit"),
-	Net:WaitForChild("RE/BeachShovelHit"),
-	Net:WaitForChild("RE/panHit"),
 	Net:WaitForChild("RE/pinkStopSignalHit"),
 	Net:WaitForChild("RE/baseballBatHit"),
 }
@@ -25,26 +20,15 @@ local hitRemotes = {
 local stompEvent = ReplicatedStorage:WaitForChild("STOMPEVENT")
 
 local function buyTool(toolName, buttonName)
-	if Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName) then return end
-
+	if Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName) then return true end
 	local button = workspace:FindFirstChild(buttonName, true)
-	if not button then return end
-
+	if not button then return false end
 	local prompt = button:FindFirstChildWhichIsA("ProximityPrompt", true)
-	if not prompt then return end
-
+	if not prompt then return false end
 	Character:PivotTo(button.CFrame + Vector3.new(0, 2, 0))
-
-	while not (Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName)) do
-		fireproximityprompt(prompt)
-		task.wait()
-	end
+	fireproximityprompt(prompt)
+	return Backpack:FindFirstChild(toolName) or Character:FindFirstChild(toolName)
 end
-
-buyTool("Pan", "Pan Buy button")
-buyTool("BeachShovel", "botonComprarShovel")
-buyTool("Spatula", "botonComprarSpatula")
-buyTool("Lunch Tray", "botonComprarLunchTray")
 
 local slayTarget = nil
 local isSlaying = false
@@ -66,18 +50,15 @@ end
 local function teleportUnderLowestHealthPlayer(localRoot)
 	local lowestHealthPlayer = nil
 	local lowestHealth = math.huge
-
 	for _, player in ipairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer then
 			local char = player.Character
 			if not char then continue end
-
 			local humanoid = char:FindFirstChild("Humanoid")
 			local root = char:FindFirstChild("HumanoidRootPart")
 			local pvp = char:FindFirstChild("hasPvpOn")
 			local stompable = char:FindFirstChild("canBeStomped")
 			local carried = char:FindFirstChild("BeingCarried")
-
 			if humanoid and root and pvp and humanoid.Health > 1 and (not stompable or not carried) then
 				if humanoid.Health < lowestHealth then
 					lowestHealth = humanoid.Health
@@ -86,7 +67,6 @@ local function teleportUnderLowestHealthPlayer(localRoot)
 			end
 		end
 	end
-
 	if lowestHealthPlayer and lowestHealthPlayer.Character then
 		local targetRoot = lowestHealthPlayer.Character:FindFirstChild("HumanoidRootPart")
 		if targetRoot and localRoot then
@@ -95,7 +75,6 @@ local function teleportUnderLowestHealthPlayer(localRoot)
 			localRoot.CFrame = CFrame.new(targetRoot.Position + Vector3.new(0, -8, 0))
 		end
 	end
-
 	for _, player in ipairs(Players:GetPlayers()) do
 		if player ~= LocalPlayer and player.Character then
 			local root = player.Character:FindFirstChild("HumanoidRootPart")
@@ -114,72 +93,74 @@ Players.PlayerRemoving:Connect(function(player)
 	end
 end)
 
-RunService.Heartbeat:Connect(function()
-	if slayTarget and slayTarget.Character then
-		local char = slayTarget.Character
-		local humanoid = char:FindFirstChild("Humanoid")
-		local root = char:FindFirstChild("HumanoidRootPart")
-		local head = char:FindFirstChild("Head")
-		local carried = char:FindFirstChild("BeingCarried")
-		local stompable = char:FindFirstChild("canBeStomped")
-		local pvp = char:FindFirstChild("hasPvpOn")
+local toolsAcquired = false
 
-		if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 5 or carried or not pvp) then
-			slayTarget = nil
-			isSlaying = false
-		end
-	end
-
-	if not slayTarget then
-		for _, player in ipairs(Players:GetPlayers()) do
-			if player ~= LocalPlayer then
-				local char = player.Character
-				if not char then continue end
-
+local toolConnection
+toolConnection = RunService.Heartbeat:Connect(function()
+	local gotSpatula = buyTool("Spatula", "botonComprarSpatula")
+	local gotLunchTray = buyTool("Lunch Tray", "botonComprarLunchTray")
+	if gotSpatula and gotLunchTray then
+		toolsAcquired = true
+		toolConnection:Disconnect()
+		RunService.Heartbeat:Connect(function()
+			if slayTarget and slayTarget.Character then
+				local char = slayTarget.Character
 				local humanoid = char:FindFirstChild("Humanoid")
 				local root = char:FindFirstChild("HumanoidRootPart")
 				local head = char:FindFirstChild("Head")
 				local carried = char:FindFirstChild("BeingCarried")
 				local stompable = char:FindFirstChild("canBeStomped")
 				local pvp = char:FindFirstChild("hasPvpOn")
-
-				if humanoid and stompable and humanoid.Health >= 1 and humanoid.Health <= 5 and not carried and pvp and root then
-					slayTarget = player
-					isSlaying = true
-					break
+				if humanoid and (not stompable or humanoid.Health < 1 or humanoid.Health > 5 or carried or not pvp) then
+					slayTarget = nil
+					isSlaying = false
 				end
 			end
-		end
-	end
-end)
-
-RunService.Heartbeat:Connect(function()
-	local char = LocalPlayer.Character
-	local root = char and char:FindFirstChild("HumanoidRootPart")
-	if not char or not root then return end
-
-	if isSlaying and slayTarget and slayTarget.Character then
-		local targetChar = slayTarget.Character
-		local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
-		local targethead = targetChar:FindFirstChild("Head")
-
-		if targetroot then
-			root.CFrame = CFrame.new(((math.random(1, 2) == 1 and targetroot or targethead).Position) + Vector3.new(0, 4, 0))
-			root.AssemblyLinearVelocity = Vector3.zero
-			root.AssemblyAngularVelocity = Vector3.zero
-			fireSlay()
-		end
-	else
-		fireHits()
-		teleportUnderLowestHealthPlayer(root)
-	end
-end)
-
-RunService.RenderStepped:Connect(function()
-	Net:FindFirstChild("RF/SalonPunch"):InvokeServer()
-
-	local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
-	if humanoid and humanoid.Health < 70 then
-		Net:FindFirstChild("RF/RequestSurgery"):InvokeServer()
+			if not slayTarget then
+				for _, player in ipairs(Players:GetPlayers()) do
+					if player ~= LocalPlayer then
+						local char = player.Character
+						if not char then continue end
+						local humanoid = char:FindFirstChild("Humanoid")
+						local root = char:FindFirstChild("HumanoidRootPart")
+						local head = char:FindFirstChild("Head")
+						local carried = char:FindFirstChild("BeingCarried")
+						local stompable = char:FindFirstChild("canBeStomped")
+						local pvp = char:FindFirstChild("hasPvpOn")
+						if humanoid and stompable and humanoid.Health >= 1 and humanoid.Health <= 5 and not carried and pvp and root then
+							slayTarget = player
+							isSlaying = true
+							break
+						end
+					end
+				end
+			end
+		end)
+		RunService.Heartbeat:Connect(function()
+			local char = LocalPlayer.Character
+			local root = char and char:FindFirstChild("HumanoidRootPart")
+			if not char or not root then return end
+			if isSlaying and slayTarget and slayTarget.Character then
+				local targetChar = slayTarget.Character
+				local targetroot = targetChar:FindFirstChild("HumanoidRootPart")
+				local targethead = targetChar:FindFirstChild("Head")
+				if targetroot then
+					root.CFrame = CFrame.new(((math.random(1, 2) == 1 and targetroot or targethead).Position) + Vector3.new(0, 4, 0))
+					root.AssemblyLinearVelocity = Vector3.zero
+					root.AssemblyAngularVelocity = Vector3.zero
+					fireSlay()
+				end
+			else
+				fireHits()
+				teleportUnderLowestHealthPlayer(root)
+			end
+		end)
+		RunService.RenderStepped:Connect(function()
+			Net:FindFirstChild("RF/SalonPunch"):InvokeServer()
+			local humanoid = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid")
+			if humanoid and humanoid.Health < 70 then
+				Net:FindFirstChild("RF/RequestSurgery"):InvokeServer()
+			end
+		end)
 	end
 end)
