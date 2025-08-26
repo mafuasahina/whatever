@@ -5,18 +5,37 @@ local RunService = game:GetService("RunService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local function grace()
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
+    if hookfunction then
+        hookfunction(LocalPlayer.Kick, function() end)
+    end
+
+    if hookmetamethod then
+        local oldNamecall
+        oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+            if self == LocalPlayer and getnamecallmethod():lower() == "kick" then
+                return
+            end
+            return oldNamecall(self, ...)
+        end)
+    end
+
     for _, child in ipairs(workspace:WaitForChild("Beacons"):GetChildren()) do
         if child.Name == "Part" then
             workspace:WaitForChild("Script"):WaitForChild("BeaconPickup"):FireServer(child)
         end
     end
+
     for _, obj in ipairs(ReplicatedStorage:GetDescendants()) do
         if obj:IsA("RemoteEvent") or obj:IsA("RemoteFunction") then
-            if obj.Name:sub(1,4) == "Send" or obj.Name:sub(1,4) == "Kill" then
+            if obj.Name:sub(1, 4) == "Send" or obj.Name:sub(1, 4) == "Kill" then
                 obj:Destroy()
             end
         end
     end
+
     for _, item in ipairs(workspace:GetChildren()) do
         if item.Name ~= "Beacons" and not item:IsA("BaseScript") then
             if item.Name == "Rooms" then
@@ -26,6 +45,12 @@ local function grace()
             else
                 item:Destroy()
             end
+        end
+    end
+
+    for _, obj in ipairs(game:GetDescendants()) do
+        if obj.Name == "NOW" then
+            obj:Destroy()
         end
     end
 end
@@ -211,5 +236,4 @@ MainTab:CreateButton({
         end
     end,
 })
-
 MainTab:CreateLabel("P.S. Use Get badges in Reprieve and in a game with all the modifiers if you want all the badges")
