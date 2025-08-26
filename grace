@@ -48,9 +48,9 @@ local function grace()
         end
     end
 
-    for _, obj in ipairs(game:GetDescendants()) do
-        if obj.Name == "NOW" then
-            obj:Destroy()
+    for _, guiObj in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetDescendants()) do
+        if guiObj.Name == "NOW" then
+            guiObj:Destroy()
         end
     end
 end
