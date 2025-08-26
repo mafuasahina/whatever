@@ -162,6 +162,19 @@ MainTab:CreateToggle({
     end,
 })
 
+MainTab:CreateToggle({
+    Name = "Grace Regular [NORMAL OR ZEN GAMEMODE]",
+    CurrentValue = false,
+    Flag = "GraceRegular",
+    Callback = function(Value)
+        if Value then
+            hbGrace2 = RunService.Heartbeat:Connect(grace2)
+        else
+            if hbGrace2 then hbGrace2:Disconnect() hbGrace2 = nil end
+        end
+    end,
+})
+
 MainTab:CreateButton({
     Name = "Create Lobby with OP Modifiers",
     Callback = function()
