@@ -8,18 +8,10 @@ local function grace()
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer
 
-    if hookfunction then
-        hookfunction(LocalPlayer.Kick, function() end)
-    end
-
-    if hookmetamethod then
-        local oldNamecall
-        oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
-            if self == LocalPlayer and getnamecallmethod():lower() == "kick" then
-                return
-            end
-            return oldNamecall(self, ...)
-        end)
+    for _, obj in ipairs(LocalPlayer:GetDescendants()) do
+        if obj.Name == "NOW" then
+            obj:Destroy()
+        end
     end
 
     for _, child in ipairs(workspace:WaitForChild("Beacons"):GetChildren()) do
@@ -45,12 +37,6 @@ local function grace()
             else
                 item:Destroy()
             end
-        end
-    end
-
-    for _, guiObj in ipairs(LocalPlayer:WaitForChild("PlayerGui"):GetDescendants()) do
-        if guiObj.Name == "NOW" then
-            guiObj:Destroy()
         end
     end
 end
@@ -152,22 +138,26 @@ MainTab:CreateToggle({
     Flag = "GraceReprieve",
     Callback = function(Value)
         if Value then
+            local Players = game:GetService("Players")
+            local LocalPlayer = Players.LocalPlayer
+
+            if hookfunction then
+                hookfunction(LocalPlayer.Kick, function() end)
+            end
+
+            if hookmetamethod then
+                local oldNamecall
+                oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
+                    if self == LocalPlayer and getnamecallmethod():lower() == "kick" then
+                        return
+                    end
+                    return oldNamecall(self, ...)
+                end)
+            end
+
             hbGrace1 = RunService.Heartbeat:Connect(grace)
         else
             if hbGrace1 then hbGrace1:Disconnect() hbGrace1 = nil end
-        end
-    end,
-})
-
-MainTab:CreateToggle({
-    Name = "Grace Regular [NORMAL OR ZEN GAMEMODE]",
-    CurrentValue = false,
-    Flag = "GraceRegular",
-    Callback = function(Value)
-        if Value then
-            hbGrace2 = RunService.Heartbeat:Connect(grace2)
-        else
-            if hbGrace2 then hbGrace2:Disconnect() hbGrace2 = nil end
         end
     end,
 })
