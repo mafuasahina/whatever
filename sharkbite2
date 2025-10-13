@@ -108,7 +108,7 @@ local runningConnection
 local Toggle
 
 Toggle = Tab:CreateToggle({
-    Name = "Autofarm [Shoot shark once to enable]",
+    Name = "Autofarm Instakill [Shoot shark once to enable]",
     CurrentValue = false,
     Flag = "AutoKillShark",
     Callback = function(on)
