@@ -159,6 +159,7 @@ Toggle = Tab:CreateToggle({
 })
 
 local AutoWinConnection
+local DestructionParts = {}
 
 local function getNearestAliveSurvivor()
     local nearestPlayer = nil
@@ -193,11 +194,18 @@ Tab:CreateToggle({
                         local targetPos = targetPlayer.Character.HumanoidRootPart.Position
                         local sharksFolder = workspace:WaitForChild("Sharks")
                         for _, shark in ipairs(sharksFolder:GetChildren()) do
-                            for _, part in ipairs(shark:GetDescendants()) do
-                                if part:IsA("BasePart") and part.Name == "DestructionPart" then
-                                    part.CFrame = CFrame.new(targetPos)
-                                    break
+                            local cachedPart = DestructionParts[shark]
+                            if not cachedPart or not cachedPart:IsA("BasePart") or not cachedPart:IsDescendantOf(shark) then
+                                for _, part in ipairs(shark:GetDescendants()) do
+                                    if part:IsA("BasePart") and part.Name == "DestructionPart" then
+                                        DestructionParts[shark] = part
+                                        cachedPart = part
+                                        break
+                                    end
                                 end
+                            end
+                            if cachedPart then
+                                cachedPart.CFrame = CFrame.new(targetPos)
                             end
                         end
                     end
@@ -209,6 +217,7 @@ Tab:CreateToggle({
                 AutoWinConnection:Disconnect()
                 AutoWinConnection = nil
             end
+            DestructionParts = {}
         end
     end
 })
