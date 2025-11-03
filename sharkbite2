@@ -158,6 +158,68 @@ Toggle = Tab:CreateToggle({
     end,
 })
 
+local AutoWinConnection
+
+local function getNearestAliveSurvivor()
+    local nearestPlayer = nil
+    local nearestDist = math.huge
+    local myPos = hrp and hrp.Position or Vector3.zero
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
+            local char = plr.Character
+            local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
+            if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
+                local dist = (hrpTarget.Position - myPos).Magnitude
+                if dist < nearestDist then
+                    nearestDist = dist
+                    nearestPlayer = plr
+                end
+            end
+        end
+    end
+    return nearestPlayer
+end
+
+Tab:CreateToggle({
+    Name = "Auto win as shark",
+    CurrentValue = false,
+    Flag = "AutoWinShark",
+    Callback = function(state)
+        if state then
+            AutoWinConnection = RunService.Heartbeat:Connect(function()
+                if player.Team and player.Team.Name == "Shark" and hrp then
+                    local targetPlayer = getNearestAliveSurvivor()
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+                        local sharksFolder = workspace:WaitForChild("Sharks")
+                        for _, shark in ipairs(sharksFolder:GetChildren()) do
+                            local smallestPart = nil
+                            for _, part in ipairs(shark:GetDescendants()) do
+                                if part:IsA("BasePart") and part.Name == "DestructionPart" then
+                                    if not smallestPart or part.Size.Magnitude < smallestPart.Size.Magnitude then
+                                        smallestPart = part
+                                    end
+                                end
+                            end
+                            if smallestPart then
+                                smallestPart.CFrame = CFrame.new(targetPos)
+                            end
+                        end
+                    end
+                end
+            end)
+            player.CharacterAdded:Connect(updateHRP)
+        else
+            if AutoWinConnection then
+                AutoWinConnection:Disconnect()
+                AutoWinConnection = nil
+            end
+        end
+    end
+})
+
+local Section2 = Tab:CreateSection("Shark ESP")
+
 local sharkESPConnection = {}
 local function setSharkESP(enabled)
     local sharksFolder = workspace:FindFirstChild("Sharks")
@@ -196,7 +258,7 @@ local function setSharkESP(enabled)
                 end))
             end
         end
-    end
+    endw
 end
 
 local function watchForNewSharks(toggleState)
@@ -209,8 +271,6 @@ local function watchForNewSharks(toggleState)
         end))
     end
 end
-
-local Section2 = Tab:CreateSection("Shark ESP")
 
 Tab:CreateToggle({
     Name = "Highlight sharks [ESP]",
