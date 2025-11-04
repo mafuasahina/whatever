@@ -159,32 +159,58 @@ Toggle = Tab:CreateToggle({
 })
 
 local AutoWinConnection
+local SharksAddedConnection
+local DestructionParts = {}
 
-local function getNearestAliveSurvivor()
-	local nearestPlayer = nil
-	local nearestDist = math.huge
+local function cacheDestructionParts()
+	DestructionParts = {}
 	local sharksFolder = workspace:FindFirstChild("Sharks")
-	if not sharksFolder then return nil end
+	if not sharksFolder then return end
 
-	local refPart = nil
 	for _, shark in ipairs(sharksFolder:GetChildren()) do
 		for _, part in ipairs(shark:GetDescendants()) do
 			if part:IsA("BasePart") and part.Name == "DestructionPart" then
-				refPart = part
-				break
+				table.insert(DestructionParts, part)
 			end
 		end
-		if refPart then break end
 	end
+
+	if SharksAddedConnection then
+		SharksAddedConnection:Disconnect()
+		SharksAddedConnection = nil
+	end
+
+	SharksAddedConnection = sharksFolder.DescendantAdded:Connect(function(desc)
+		if desc:IsA("BasePart") and desc.Name == "DestructionPart" then
+			table.insert(DestructionParts, desc)
+		end
+	end)
+end
+
+local function getRandomDestructionPart()
+	while #DestructionParts > 0 do
+		local part = DestructionParts[math.random(#DestructionParts)]
+		if part and part:IsDescendantOf(workspace) then
+			return part
+		end
+	end
+	return nil
+end
+
+local function getNearestAliveSurvivor()
+	local refPart = getRandomDestructionPart()
 	if not refPart then return nil end
 
+	local nearestPlayer
+	local nearestDist = math.huge
 	local myPos = refPart.Position
+
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
 			local char = plr.Character
-			local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
-			if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
-				local dist = (hrpTarget.Position - myPos).Magnitude
+			local hrp = char and char:FindFirstChild("HumanoidRootPart")
+			if hrp and not hrp:FindFirstChild("Attachment") then
+				local dist = (hrp.Position - myPos).Magnitude
 				if dist < nearestDist then
 					nearestDist = dist
 					nearestPlayer = plr
@@ -192,6 +218,7 @@ local function getNearestAliveSurvivor()
 			end
 		end
 	end
+
 	return nearestPlayer
 end
 
@@ -201,30 +228,32 @@ Tab:CreateToggle({
 	Flag = "AutoWinShark",
 	Callback = function(state)
 		if state then
+			cacheDestructionParts()
+
 			AutoWinConnection = RunService.Heartbeat:Connect(function()
 				if player.Team and player.Team.Name == "Shark" then
-					local targetPlayer = getNearestAliveSurvivor()
-					if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-						local targetPos = targetPlayer.Character.HumanoidRootPart.Position
-						local sharksFolder = workspace:FindFirstChild("Sharks")
-						if sharksFolder then
-							for _, shark in ipairs(sharksFolder:GetChildren()) do
-								for _, part in ipairs(shark:GetDescendants()) do
-									if part:IsA("BasePart") and part.Name == "DestructionPart" then
-										part.CFrame = CFrame.new(targetPos)
-										break
-									end
-								end
-							end
+					local target = getNearestAliveSurvivor()
+					local part = getRandomDestructionPart()
+
+					if target and part then
+						local hrp = target.Character and target.Character:FindFirstChild("HumanoidRootPart")
+						if hrp then
+							part.CFrame = CFrame.new(hrp.Position)
 						end
 					end
 				end
 			end)
+
 		else
 			if AutoWinConnection then
 				AutoWinConnection:Disconnect()
 				AutoWinConnection = nil
 			end
+			if SharksAddedConnection then
+				SharksAddedConnection:Disconnect()
+				SharksAddedConnection = nil
+			end
+			table.clear(DestructionParts)
 		end
 	end
 })
