@@ -159,24 +159,8 @@ Toggle = Tab:CreateToggle({
 })
 
 local AutoWinConnection
-local SharksDescendantConnection
-local DestructionParts = {}
 
-local function addDestructionPart(part)
-    table.insert(DestructionParts, part)
-    part.AncestryChanged:Connect(function(_, parent)
-        if not parent then
-            for i = #DestructionParts, 1, -1 do
-                if DestructionParts[i] == part then
-                    table.remove(DestructionParts, i)
-                    break
-                end
-            end
-        end
-    end)
-end
-
-local function getNearestSurvivorToPart(part)
+local function getNearestAliveSurvivor(fromPosition)
     local nearestPlayer = nil
     local nearestDist = math.huge
     for _, plr in ipairs(Players:GetPlayers()) do
@@ -184,7 +168,7 @@ local function getNearestSurvivorToPart(part)
             local char = plr.Character
             local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
             if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
-                local dist = (hrpTarget.Position - part.Position).Magnitude
+                local dist = (hrpTarget.Position - fromPosition).Magnitude
                 if dist < nearestDist then
                     nearestDist = dist
                     nearestPlayer = plr
@@ -201,34 +185,27 @@ Tab:CreateToggle({
     Flag = "AutoWinShark",
     Callback = function(state)
         if state then
-            local sharksFolder = workspace:FindFirstChild("Sharks")
-            if sharksFolder then
-                for _, d in ipairs(sharksFolder:GetDescendants()) do
-                    if d:IsA("BasePart") and d.Name == "DestructionPart" then
-                        addDestructionPart(d)
-                    end
-                end
-                SharksDescendantConnection = sharksFolder.DescendantAdded:Connect(function(descendant)
-                    if descendant:IsA("BasePart") and descendant.Name == "DestructionPart" then
-                        addDestructionPart(descendant)
-                    end
-                end)
-            end
             AutoWinConnection = RunService.Heartbeat:Connect(function()
-                if player.Team and player.Team.Name == "Shark" and #DestructionParts > 0 then
-                    for i = #DestructionParts, 1, -1 do
-                        if not DestructionParts[i] or not DestructionParts[i].Parent then
-                            table.remove(DestructionParts, i)
+                if player.Team and player.Team.Name == "Shark" then
+                    local sharksFolder = workspace:FindFirstChild("Sharks")
+                    if not sharksFolder then return end
+
+                    local destructionParts = {}
+                    for _, shark in ipairs(sharksFolder:GetChildren()) do
+                        for _, part in ipairs(shark:GetDescendants()) do
+                            if part:IsA("BasePart") and part.Name == "DestructionPart" then
+                                table.insert(destructionParts, part)
+                            end
                         end
                     end
-                    local count = #DestructionParts
-                    if count > 0 then
-                        local randomPart = DestructionParts[math.random(1, count)]
-                        local targetPlayer = getNearestSurvivorToPart(randomPart)
-                        if randomPart and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                            local targetPos = targetPlayer.Character.HumanoidRootPart.Position
-                            randomPart.CFrame = CFrame.new(targetPos)
-                        end
+
+                    if #destructionParts == 0 then return end
+                    local chosenPart = destructionParts[math.random(1, #destructionParts)]
+
+                    local targetPlayer = getNearestAliveSurvivor(chosenPart.Position)
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+                        chosenPart.CFrame = CFrame.new(targetPos)
                     end
                 end
             end)
@@ -237,11 +214,6 @@ Tab:CreateToggle({
                 AutoWinConnection:Disconnect()
                 AutoWinConnection = nil
             end
-            if SharksDescendantConnection then
-                SharksDescendantConnection:Disconnect()
-                SharksDescendantConnection = nil
-            end
-            table.clear(DestructionParts)
         end
     end
 })
