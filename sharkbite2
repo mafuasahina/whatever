@@ -302,25 +302,3 @@ Tab:CreateToggle({
         watchForNewSharks(state)
     end
 })
-
-local Section3 = Tab:CreateSection("Anti Lag")
-
-Tab:CreateToggle({
-    Name = "Delete boats",
-    CurrentValue = false,
-    Flag = "RemoveBoats",
-    Callback = function(state)
-        if state then
-            local boats = workspace:FindFirstChild("Boats")
-            if boats then
-                boats:Destroy()
-            end
-        else
-            if not workspace:FindFirstChild("Boats") then
-                local newBoats = Instance.new("Folder")
-                newBoats.Name = "Boats"
-                newBoats.Parent = workspace
-            end
-        end
-    end
-})
