@@ -162,6 +162,20 @@ local AutoWinConnection
 local SharksDescendantConnection
 local DestructionParts = {}
 
+local function addDestructionPart(part)
+    table.insert(DestructionParts, part)
+    part.AncestryChanged:Connect(function(_, parent)
+        if not parent then
+            for i = #DestructionParts, 1, -1 do
+                if DestructionParts[i] == part then
+                    table.remove(DestructionParts, i)
+                    break
+                end
+            end
+        end
+    end)
+end
+
 local function getNearestSurvivorToPart(part)
     local nearestPlayer = nil
     local nearestDist = math.huge
@@ -191,21 +205,27 @@ Tab:CreateToggle({
             if sharksFolder then
                 for _, d in ipairs(sharksFolder:GetDescendants()) do
                     if d:IsA("BasePart") and d.Name == "DestructionPart" then
-                        table.insert(DestructionParts, d)
+                        addDestructionPart(d)
                     end
                 end
                 SharksDescendantConnection = sharksFolder.DescendantAdded:Connect(function(descendant)
                     if descendant:IsA("BasePart") and descendant.Name == "DestructionPart" then
-                        table.insert(DestructionParts, descendant)
+                        addDestructionPart(descendant)
                     end
                 end)
             end
             AutoWinConnection = RunService.Heartbeat:Connect(function()
                 if player.Team and player.Team.Name == "Shark" and #DestructionParts > 0 then
-                    local randomPart = DestructionParts[math.random(1, #DestructionParts)]
-                    if randomPart then
+                    for i = #DestructionParts, 1, -1 do
+                        if not DestructionParts[i] or not DestructionParts[i].Parent then
+                            table.remove(DestructionParts, i)
+                        end
+                    end
+                    local count = #DestructionParts
+                    if count > 0 then
+                        local randomPart = DestructionParts[math.random(1, count)]
                         local targetPlayer = getNearestSurvivorToPart(randomPart)
-                        if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        if randomPart and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
                             local targetPos = targetPlayer.Character.HumanoidRootPart.Position
                             randomPart.CFrame = CFrame.new(targetPos)
                         end
