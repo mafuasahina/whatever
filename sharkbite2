@@ -160,16 +160,15 @@ Toggle = Tab:CreateToggle({
 
 local AutoWinConnection
 
-local function getNearestAliveSurvivor()
+local function getNearestAliveSurvivor(origin)
     local nearestPlayer = nil
     local nearestDist = math.huge
-    local myPos = hrp and hrp.Position or Vector3.zero
     for _, plr in ipairs(Players:GetPlayers()) do
         if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
             local char = plr.Character
             local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
             if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
-                local dist = (hrpTarget.Position - myPos).Magnitude
+                local dist = (hrpTarget.Position - origin).Magnitude
                 if dist < nearestDist then
                     nearestDist = dist
                     nearestPlayer = plr
@@ -188,16 +187,21 @@ Tab:CreateToggle({
         if state then
             AutoWinConnection = RunService.Heartbeat:Connect(function()
                 if player.Team and player.Team.Name == "Shark" and hrp then
-                    local targetPlayer = getNearestAliveSurvivor()
-                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
-                        local sharksFolder = workspace:WaitForChild("Sharks")
-                        for _, shark in ipairs(sharksFolder:GetChildren()) do
-                            for _, part in ipairs(shark:GetDescendants()) do
-                                if part:IsA("BasePart") and part.Name == "DestructionPart" then
-                                    part.CFrame = CFrame.new(targetPos)
-                                    break
-                                end
+                    local sharksFolder = workspace:FindFirstChild("Sharks")
+                    if not sharksFolder then return end
+                    for _, shark in ipairs(sharksFolder:GetChildren()) do
+                        local destructionParts = {}
+                        for _, part in ipairs(shark:GetDescendants()) do
+                            if part:IsA("BasePart") and part.Name == "DestructionPart" then
+                                table.insert(destructionParts, part)
+                            end
+                        end
+                        if #destructionParts > 0 then
+                            local chosenPart = destructionParts[math.random(1, #destructionParts)]
+                            local targetPlayer = getNearestAliveSurvivor(chosenPart.Position)
+                            if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                                local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+                                chosenPart.CFrame = CFrame.new(targetPos)
                             end
                         end
                     end
