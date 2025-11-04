@@ -159,85 +159,58 @@ Toggle = Tab:CreateToggle({
 })
 
 local AutoWinConnection
-local destructionParts = {}
 
 local function getNearestAliveSurvivor()
-	local nearestPlayer = nil
-	local nearestDist = math.huge
-	local refPart = destructionParts[1]
-	if not refPart or not refPart.Parent then return nil end
-
-	local myPos = refPart.Position
-	for _, plr in ipairs(Players:GetPlayers()) do
-		if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
-			local char = plr.Character
-			local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
-			if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
-				local dist = (hrpTarget.Position - myPos).Magnitude
-				if dist < nearestDist then
-					nearestDist = dist
-					nearestPlayer = plr
-				end
-			end
-		end
-	end
-	return nearestPlayer
-end
-
-local function updateDestructionParts()
-	local sharksFolder = workspace:FindFirstChild("Sharks")
-	if not sharksFolder then return end
-
-	for _, shark in ipairs(sharksFolder:GetChildren()) do
-		local alreadyCached = false
-		for _, part in ipairs(destructionParts) do
-			if part:IsDescendantOf(shark) then
-				alreadyCached = true
-				break
-			end
-		end
-		if not alreadyCached then
-			for _, part in ipairs(shark:GetDescendants()) do
-				if part:IsA("BasePart") and part.Name == "DestructionPart" then
-					table.insert(destructionParts, part)
-					break
-				end
-			end
-		end
-	end
+    local nearestPlayer = nil
+    local nearestDist = math.huge
+    local myPos = hrp and hrp.Position or Vector3.zero
+    for _, plr in ipairs(Players:GetPlayers()) do
+        if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
+            local char = plr.Character
+            local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
+            if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
+                local dist = (hrpTarget.Position - myPos).Magnitude
+                if dist < nearestDist then
+                    nearestDist = dist
+                    nearestPlayer = plr
+                end
+            end
+        end
+    end
+    return nearestPlayer
 end
 
 Tab:CreateToggle({
-	Name = "Auto win as shark",
-	CurrentValue = false,
-	Flag = "AutoWinShark",
-	Callback = function(state)
-		if state then
-			table.clear(destructionParts)
-
-			AutoWinConnection = RunService.Heartbeat:Connect(function()
-				if player.Team and player.Team.Name == "Shark" then
-					updateDestructionParts()
-
-					local targetPlayer = getNearestAliveSurvivor()
-					if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-						local targetPos = targetPlayer.Character.HumanoidRootPart.Position
-						for _, part in ipairs(destructionParts) do
-							if part and part.Parent then
-								part.CFrame = CFrame.new(targetPos)
-							end
-						end
-					end
-				end
-			end)
-		else
-			if AutoWinConnection then
-				AutoWinConnection:Disconnect()
-				AutoWinConnection = nil
-			end
-			table.clear(destructionParts)
-		end
-	end
+    Name = "Auto win as shark",
+    CurrentValue = false,
+    Flag = "AutoWinShark",
+    Callback = function(state)
+        if state then
+            AutoWinConnection = RunService.Heartbeat:Connect(function()
+                if player.Team and player.Team.Name == "Shark" and hrp then
+                    local targetPlayer = getNearestAliveSurvivor()
+                    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local targetPos = targetPlayer.Character.HumanoidRootPart.Position
+                        local sharksFolder = workspace:WaitForChild("Sharks")
+                        for _, shark in ipairs(sharksFolder:GetChildren()) do
+                            for _, part in ipairs(shark:GetDescendants()) do
+                                if part:IsA("BasePart") and part.Name == "DestructionPart" then
+                                    part.CFrame = CFrame.new(targetPos)
+                                    break
+                                end
+                            end
+                        end
+                    end
+                end
+            end)
+            player.CharacterAdded:Connect(updateHRP)
+        else
+            if AutoWinConnection then
+                AutoWinConnection:Disconnect()
+                AutoWinConnection = nil
+            end
+        end
+    end
 })
 
 local Section2 = Tab:CreateSection("Shark ESP")
