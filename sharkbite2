@@ -116,7 +116,7 @@ Toggle = Tab:CreateToggle({
                         if tick() - lastNotify >= 3 then
                             Rayfield:Notify({
                                 Title = "Waiting for shark to be shot",
-                                Content = "Shoot shark to enable autofarm [projectiles/rockets dont work]",
+                                Content = "Shoot shark to enable autofarm",
                                 Duration = 3
                             })
                             lastNotify = tick()
