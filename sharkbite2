@@ -359,7 +359,7 @@ Tab:CreateToggle({
                 end))
             end
             VaseHeartbeat = RunService.Heartbeat:Connect(function(dt)
-                if player.Team and hrp then
+                if player.Team and hrp and not sharkName then
                     if player.Team.Name ~= "Survivor" and #VaseTouchParts == 0 then
                         local chinook = workspace:FindFirstChild("Chinook")
                         local interior = chinook and chinook:FindFirstChild("interior")
