@@ -45,7 +45,9 @@ end
 
 for _, child in ipairs(remotesFolder:GetChildren()) do
     if child:IsA("RemoteEvent") or child:IsA("RemoteFunction") then
-        hookRemote(child)
+        pcall(function()
+            hookRemote(child)
+        end)
     end
 end
 
@@ -108,6 +110,20 @@ Toggle = Tab:CreateToggle({
     CurrentValue = false,
     Flag = "AutoKillShark",
     Callback = function(on)
+        if on and (not getrawmetatable or not setreadonly or not newcclosure) then
+            task.delay(.2, function()
+                Rayfield.Flags["AutoKillShark"]:Set(false)
+            end)
+
+            Rayfield:Notify({
+                Title = "Executor too weak",
+                Content = "Your executor does not support getrawmetatable, setreadonly, or newcclosure.",
+                Duration = 3
+            })
+
+            return
+        end
+
         if on then
             local lastNotify = 0
             runningConnection = RunService.Heartbeat:Connect(function(dt)
