@@ -358,7 +358,30 @@ Tab:CreateToggle({
                     end
                 end))
             end
-            VaseHeartbeat = RunService.Heartbeat:Connect(function()
+            VaseHeartbeat = RunService.Heartbeat:Connect(function(dt)
+                if player.Team and hrp then
+                    if player.Team.Name ~= "Survivor" and #VaseTouchParts == 0 then
+                        local chinook = workspace:FindFirstChild("Chinook")
+                        local interior = chinook and chinook:FindFirstChild("interior")
+                        if interior then
+                            hrp.CFrame = interior.CFrame
+                        end
+                    else
+                        angle += speed * dt
+                        local t = (angle % (math.pi * 2)) / (math.pi * 2)
+                        local offset
+                        if t < 0.25 then
+                            offset = Vector3.new(radius, 0, -radius + 8 * radius * t)
+                        elseif t < 0.5 then
+                            offset = Vector3.new(radius - 8 * radius * (t - 0.25), 0, radius)
+                        elseif t < 0.75 then
+                            offset = Vector3.new(-radius, 0, radius - 8 * radius * (t - 0.5))
+                        else
+                            offset = Vector3.new(-radius + 8 * radius * (t - 0.75), 0, -radius)
+                        end
+                        hrp.CFrame = CFrame.new(center + offset, center)
+                    end
+                end
                 for _, t in ipairs(VaseTouchParts) do
                     if t and t.Parent and t.Parent:IsA("BasePart") then
                         local part = t.Parent
