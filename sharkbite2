@@ -318,3 +318,68 @@ Tab:CreateToggle({
         watchForNewSharks(state)
     end
 })
+
+local Section3 = Tab:CreateSection("Auto Vase")
+
+local VaseTouchParts = {}
+local VaseConnections = {}
+local VaseHeartbeat
+
+local function AddVaseTouch(part)
+    table.insert(VaseTouchParts, part)
+    part.AncestryChanged:Connect(function(_, parent)
+        if not parent then
+            for i, v in ipairs(VaseTouchParts) do
+                if v == part then
+                    table.remove(VaseTouchParts, i)
+                    break
+                end
+            end
+        end
+    end)
+end
+
+Tab:CreateToggle({
+    Name = "Auto touch vases",
+    CurrentValue = false,
+    Flag = "AutoTouchVases",
+    Callback = function(state)
+        if state then
+            local folder = workspace:FindFirstChild("Vases")
+            if folder then
+                for _, d in ipairs(folder:GetDescendants()) do
+                    if d:IsA("TouchTransmitter") then
+                        AddVaseTouch(d)
+                    end
+                end
+                table.insert(VaseConnections, folder.DescendantAdded:Connect(function(desc)
+                    if desc:IsA("TouchTransmitter") then
+                        AddVaseTouch(desc)
+                    end
+                end))
+            end
+            VaseHeartbeat = RunService.Heartbeat:Connect(function()
+                for _, t in ipairs(VaseTouchParts) do
+                    if t and t.Parent and t.Parent:IsA("BasePart") then
+                        local part = t.Parent
+                        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+                            player.Character.HumanoidRootPart.CFrame = part.CFrame
+                            firetouchinterest(player.Character.HumanoidRootPart, part, 0)
+                            firetouchinterest(player.Character.HumanoidRootPart, part, 1)
+                        end
+                    end
+                end
+            end)
+        else
+            for _, c in ipairs(VaseConnections) do
+                c:Disconnect()
+            end
+            table.clear(VaseConnections)
+            table.clear(VaseTouchParts)
+            if VaseHeartbeat then
+                VaseHeartbeat:Disconnect()
+                VaseHeartbeat = nil
+            end
+        end
+    end,
+})
