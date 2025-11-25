@@ -51,6 +51,19 @@ for _, child in ipairs(remotesFolder:GetChildren()) do
     end
 end
 
+local afk = player.PlayerScripts:FindFirstChild("AFK")
+if afk then
+    afk:Destroy()
+end
+
+local hud = player.PlayerScripts:FindFirstChild("HUD")
+if hud then
+    local oxygen = hud:FindFirstChild("Oxygen")
+    if oxygen then
+        oxygen:Destroy()
+    end
+end
+
 local function getShark()
     local sharksFolder = workspace:FindFirstChild("Sharks")
     if sharksFolder then
