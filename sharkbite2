@@ -1,5 +1,7 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/sharkbite2"))()
 
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/sharkbite2"))()
+
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -91,17 +93,13 @@ local function KillShark()
                 :WaitForChild("Events")
                 :WaitForChild("Weapons")
                 :WaitForChild("remotes")
-                :WaitForChild(remote):FireServer(shark,true)
+                :WaitForChild(remote):FireServer(shark, true)
         end
     end
 end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local center = Vector3.new(0, -100, 0)
-local radius = 1000
-local speed = math.pi * 2
-local angle = 0
 local hrp
 
 local function updateHRP()
@@ -127,32 +125,17 @@ Toggle = Tab:CreateToggle({
             task.delay(.2, function()
                 Rayfield.Flags["AutoKillShark"]:Set(false)
             end)
-
             Rayfield:Notify({
                 Title = "Executor too weak",
                 Content = "Your executor does not support getrawmetatable, setreadonly, or newcclosure.",
                 Duration = 3
             })
-
             return
         end
 
         if on then
-            local lastNotify = 0
             runningConnection = RunService.Heartbeat:Connect(function(dt)
                 if player.Team and player.Team.Name ~= "Shark" and hrp then
-                    if not remote then
-                        if tick() - lastNotify >= 3 then
-                            Rayfield:Notify({
-                                Title = "Waiting for shark to be shot",
-                                Content = "Shoot shark to enable autofarm",
-                                Duration = 3
-                            })
-                            lastNotify = tick()
-                        end
-                        return
-                    end
-                    KillShark()
                     getShark()
                     if not sharkName then
                         local chinook = workspace:FindFirstChild("Chinook")
@@ -161,19 +144,21 @@ Toggle = Tab:CreateToggle({
                             hrp.CFrame = interior.CFrame
                         end
                     else
-                        angle += speed * dt
-                        local t = (angle % (math.pi * 2)) / (math.pi * 2)
-                        local offset
-                        if t < 0.25 then
-                            offset = Vector3.new(radius, 0, -radius + 8 * radius * t)
-                        elseif t < 0.5 then
-                            offset = Vector3.new(radius - 8 * radius * (t - 0.25), 0, radius)
-                        elseif t < 0.75 then
-                            offset = Vector3.new(-radius, 0, radius - 8 * radius * (t - 0.5))
-                        else
-                            offset = Vector3.new(-radius + 8 * radius * (t - 0.75), 0, -radius)
+                        local sharksFolder = workspace:FindFirstChild("Sharks")
+                        local shark = sharksFolder and sharksFolder:FindFirstChild(sharkName)
+                        if shark then
+                            local sharkPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
+                            if sharkPart then
+                                local cf, size = shark:GetBoundingBox()
+                                hrp.CFrame = cf * CFrame.new(0, 0, size.Z / 2 + 2)
+                            end
                         end
-                        hrp.CFrame = CFrame.new(center + offset, center)
+                        local equippedTool = character:FindFirstChildOfClass("Tool")
+                        if equippedTool then
+                            mouse1press()
+                            mouse1release()
+                        end
+                        KillShark()
                     end
                 end
             end)
