@@ -1,7 +1,5 @@
 --loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/sharkbite2"))()
 
---loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/sharkbite2"))()
-
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
@@ -149,8 +147,7 @@ Toggle = Tab:CreateToggle({
                         if shark then
                             local sharkPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
                             if sharkPart then
-                                local cf, size = shark:GetBoundingBox()
-                                hrp.CFrame = cf * CFrame.new(0, 0, size.Z / 2 + 2)
+                                hrp.CFrame = sharkPart.CFrame * CFrame.new(0, 0, 5)
                             end
                         end
                         local equippedTool = character:FindFirstChildOfClass("Tool")
