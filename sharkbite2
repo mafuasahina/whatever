@@ -129,9 +129,8 @@ Toggle = Tab:CreateToggle({
         end
 
         if on then
-            Camera.CameraType = Enum.CameraType.Scriptable
             runningConnection = RunService.Heartbeat:Connect(function(dt)
-                if player.Team and player.Team.Name == "Survivor" and hrp then
+                if player.Team and player.Team.Name ~= "Shark" and hrp then
                     getShark()
                     if not sharkName then
                         local chinook = workspace:FindFirstChild("Chinook")
@@ -148,6 +147,7 @@ Toggle = Tab:CreateToggle({
                                 local behind = sharkPart.CFrame * CFrame.new(0, 0, 50)
                                 hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
 
+                                Camera.CameraType = Enum.CameraType.Scriptable
                                 Camera.CFrame = CFrame.new(behind.Position, sharkPart.Position)
 
                                 local equippedTool = character:FindFirstChildOfClass("Tool")
