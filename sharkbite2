@@ -147,7 +147,7 @@ Toggle = Tab:CreateToggle({
                         if shark then
                             local sharkPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
                             if sharkPart then
-                                hrp.CFrame = sharkPart.CFrame
+                                hrp.CFrame = sharkPart.CFrame * CFrame.new(0, 0, 5)
                             end
                         end
                         local equippedTool = character:FindFirstChildOfClass("Tool")
