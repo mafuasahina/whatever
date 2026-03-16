@@ -145,21 +145,13 @@ Toggle = Tab:CreateToggle({
                         local sharksFolder = workspace:FindFirstChild("Sharks")
                         local shark = sharksFolder and sharksFolder:FindFirstChild(sharkName)
                         if shark then
-                            local tailPart
-                            for _, desc in ipairs(shark:GetDescendants()) do
-                                if desc:IsA("BasePart") and desc.Name:find("Tail") then
-                                    tailPart = desc
-                                    break
-                                end
-                            end
-                            local targetPart = tailPart or shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
-                            if targetPart then
-                                hrp.CFrame = targetPart.CFrame
+                            if shark then
+                                hrp.CFrame = shark:GetModelCFrame()
                             end
                         end
-                        if character:FindFirstChildOfClass("Tool") then
-                            mouse1press()
-                            mouse1release()
+                        local equippedTool = character:FindFirstChildOfClass("Tool")
+                        if equippedTool then
+                            pcall(function() equippedTool:Activate() end)
                         end
                         KillShark()
                     end
