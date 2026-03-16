@@ -129,6 +129,7 @@ Toggle = Tab:CreateToggle({
         end
 
         if on then
+            Camera.CameraType = Enum.CameraType.Scriptable
             runningConnection = RunService.Heartbeat:Connect(function(dt)
                 if player.Team and player.Team.Name == "Survivor" and hrp then
                     getShark()
@@ -164,6 +165,7 @@ Toggle = Tab:CreateToggle({
             end)
             player.CharacterAdded:Connect(updateHRP)
         else
+            Camera.CameraType = Enum.CameraType.Custom
             if runningConnection then
                 runningConnection:Disconnect()
                 runningConnection = nil
