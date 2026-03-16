@@ -129,9 +129,8 @@ Toggle = Tab:CreateToggle({
         end
 
         if on then
-            local lastNotify = 0
             runningConnection = RunService.Heartbeat:Connect(function(dt)
-                if player.Team and player.Team.Name == "Survivor" and hrp then
+                if player.Team and player.Team.Name ~= "Shark" and hrp then
                     getShark()
                     if not sharkName then
                         local chinook = workspace:FindFirstChild("Chinook")
@@ -157,14 +156,6 @@ Toggle = Tab:CreateToggle({
                                     mousemoveabs(vp.X / 2, vp.Y / 2)
                                     mouse1press()
                                     mouse1release()
-                                    if tick() - lastNotify >= 3 then
-                                        lastNotify = tick()
-                                        Rayfield:Notify({
-                                            Title = "Attempting to shoot shark",
-                                            Content = "Please shoot the shark if it isn't shot automatically (must not be using a gun that shoots projectiles)",
-                                            Duration = 3
-                                        })
-                                    end
                                 end
                             end
                         end
