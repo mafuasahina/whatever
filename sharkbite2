@@ -52,16 +52,12 @@ for _, child in ipairs(remotesFolder:GetChildren()) do
 end
 
 local afk = player.PlayerScripts:FindFirstChild("AFK")
-if afk then
-    afk:Destroy()
-end
+if afk then afk:Destroy() end
 
 local hud = player.PlayerScripts:FindFirstChild("HUD")
 if hud then
     local oxygen = hud:FindFirstChild("Oxygen")
-    if oxygen then
-        oxygen:Destroy()
-    end
+    if oxygen then oxygen:Destroy() end
 end
 
 local function getShark()
@@ -98,6 +94,7 @@ end
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
 local hrp
 
 local function updateHRP()
@@ -133,7 +130,7 @@ Toggle = Tab:CreateToggle({
 
         if on then
             runningConnection = RunService.Heartbeat:Connect(function(dt)
-                if player.Team and player.Team.Name == "Survivor" and hrp then
+                if player.Team and player.Team.Name ~= "Shark" and hrp then
                     getShark()
                     if not sharkName then
                         local chinook = workspace:FindFirstChild("Chinook")
@@ -147,13 +144,19 @@ Toggle = Tab:CreateToggle({
                         if shark then
                             local sharkPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
                             if sharkPart then
-                                hrp.CFrame = sharkPart.CFrame * CFrame.new(0, 0, 5)
+                                local behind = sharkPart.CFrame * CFrame.new(0, 0, 50)
+                                hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
+
+                                Camera.CFrame = CFrame.new(behind.Position, sharkPart.Position)
+
+                                local equippedTool = character:FindFirstChildOfClass("Tool")
+                                if equippedTool then
+                                    local vp = Camera.ViewportSize
+                                    mousemoveabs(vp.X / 2, vp.Y / 2)
+                                    mouse1press()
+                                    mouse1release()
+                                end
                             end
-                        end
-                        local equippedTool = character:FindFirstChildOfClass("Tool")
-                        if equippedTool then
-                            mouse1press()
-                            mouse1release()
                         end
                         KillShark()
                     end
@@ -237,8 +240,7 @@ Tab:CreateToggle({
                         local randomPart = DestructionParts[math.random(1, count)]
                         local targetPlayer = getNearestSurvivorToPart(randomPart)
                         if randomPart and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
-                            local targetPos = targetPlayer.Character.HumanoidRootPart.Position
-                            randomPart.CFrame = CFrame.new(targetPos)
+                            randomPart.CFrame = CFrame.new(targetPlayer.Character.HumanoidRootPart.Position)
                         end
                     end
                 end
@@ -276,14 +278,10 @@ local function setSharkESP(enabled)
                 shark.Enabled = true
                 shark.OutlineTransparency = 0
                 table.insert(sharkESPConnection, shark:GetPropertyChangedSignal("Enabled"):Connect(function()
-                    if not shark.Enabled then
-                        shark.Enabled = true
-                    end
+                    if not shark.Enabled then shark.Enabled = true end
                 end))
                 table.insert(sharkESPConnection, shark:GetPropertyChangedSignal("OutlineTransparency"):Connect(function()
-                    if shark.OutlineTransparency ~= 0 then
-                        shark.OutlineTransparency = 0
-                    end
+                    if shark.OutlineTransparency ~= 0 then shark.OutlineTransparency = 0 end
                 end))
             else
                 shark.Enabled = false
@@ -366,9 +364,7 @@ Tab:CreateToggle({
                 end
             end)
         else
-            for _, c in ipairs(VaseConnections) do
-                c:Disconnect()
-            end
+            for _, c in ipairs(VaseConnections) do c:Disconnect() end
             table.clear(VaseConnections)
             table.clear(VaseTouchParts)
             if VaseHeartbeat then
