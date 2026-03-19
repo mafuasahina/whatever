@@ -130,9 +130,10 @@ Toggle = Tab:CreateToggle({
 
         if on then
             runningConnection = RunService.Heartbeat:Connect(function(dt)
-                if player.Team and player.Team.Name ~= "Shark" and hrp then
+                if player.Team and player.Team.Name == "Survivor" and hrp then
                     getShark()
                     if not sharkName then
+                        Camera.CameraType = Enum.CameraType.Custom
                         local chinook = workspace:FindFirstChild("Chinook")
                         local interior = chinook and chinook:FindFirstChild("interior")
                         if interior then
