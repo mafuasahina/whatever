@@ -157,8 +157,8 @@ Tab:CreateToggle({
 								local cx, cy = vp.X / 2, vp.Y / 2
 								VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
 								VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
-								task.wait()
 								VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+								task.wait(1)
 							end
 						end
 					end
