@@ -110,7 +110,7 @@ Tab:CreateSection("Autofarm")
 local runningConnection
 
 Tab:CreateToggle({
-	Name = "Auto Instakill shark [Shoot shark once to enable]",
+	Name = "Auto Instakill shark [don't equip projectile weapons to work]",
 	CurrentValue = false,
 	Flag = "AutoKillShark",
 	Callback = function(on)
