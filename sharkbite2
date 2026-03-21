@@ -94,11 +94,6 @@ local function getShark()
 end
 
 local function KillShark()
-	for _, tool in ipairs(backpack:GetChildren()) do
-		if tool:IsA("Tool") then
-			tool.Parent = character
-		end
-	end
 	for _ = 1, 20 do
 		if sharkName and remote then
 			local shark = workspace:WaitForChild("Sharks"):FindFirstChild(sharkName)
@@ -152,6 +147,12 @@ Tab:CreateToggle({
 					if shark then
 						local sharkPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
 						if sharkPart then
+							for _, tool in ipairs(backpack:GetChildren()) do
+								if tool:IsA("Tool") then
+									tool.Parent = character
+								end
+							end
+
 							if not remote then
 								local behind = sharkPart.CFrame * CFrame.new(0, 0, 50)
 								hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
