@@ -1,3 +1,5 @@
+--loadstring(game:HttpGet("https://raw.githubusercontent.com/mafuasahina/whatever/main/sharkbite2"))()
+
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
@@ -127,7 +129,12 @@ Tab:CreateToggle({
 		end
 
 		if on then
-			runningConnection = RunService.Heartbeat:Connect(function()
+			local angle = 0
+			local speed = math.pi * 2
+			local center = Vector3.new(0, -100, 0)
+			local radius = 1000
+
+			runningConnection = RunService.Heartbeat:Connect(function(dt)
 				if not (player.Team and player.Team.Name == "Survivor" and hrp) then return end
 
 				getShark()
@@ -145,26 +152,46 @@ Tab:CreateToggle({
 					if shark then
 						local sharkPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
 						if sharkPart then
-							local behind = sharkPart.CFrame * CFrame.new(0, 0, 50)
-							hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
+							if not remote then
+								local behind = sharkPart.CFrame * CFrame.new(0, 0, 50)
+								hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
 
-							Camera.CameraType = Enum.CameraType.Scriptable
-							Camera.CFrame = CFrame.new(behind.Position, sharkPart.Position)
+								Camera.CameraType = Enum.CameraType.Scriptable
+								Camera.CFrame = CFrame.new(behind.Position, sharkPart.Position)
 
-							local equippedTool = character:FindFirstChildOfClass("Tool")
-							if equippedTool and not remote then
-								local vp = Camera.ViewportSize
-								local cx, cy = vp.X / 2, vp.Y / 2
-								VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
-								VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
-								VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
-								task.wait(1)
+								local equippedTool = character:FindFirstChildOfClass("Tool")
+								if equippedTool then
+									local vp = Camera.ViewportSize
+									local cx, cy = vp.X / 2, vp.Y / 2
+									VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
+									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+									task.wait(1)
+								end
+							else
+								Camera.CameraType = Enum.CameraType.Custom
+
+								angle += speed * dt
+								local t = (angle % (math.pi * 2)) / (math.pi * 2)
+								local offset
+								if t < 0.25 then
+									offset = Vector3.new(radius, 0, -radius + 8 * radius * t)
+								elseif t < 0.5 then
+									offset = Vector3.new(radius - 8 * radius * (t - 0.25), 0, radius)
+								elseif t < 0.75 then
+									offset = Vector3.new(-radius, 0, radius - 8 * radius * (t - 0.5))
+								else
+									offset = Vector3.new(-radius + 8 * radius * (t - 0.75), 0, -radius)
+								end
+								hrp.CFrame = CFrame.new(center + offset, center)
+
+								KillShark()
 							end
 						end
 					end
-					KillShark()
 				end
 			end)
+
 			player.CharacterAdded:Connect(updateHRP)
 		else
 			Camera.CameraType = Enum.CameraType.Custom
