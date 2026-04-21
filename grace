@@ -322,7 +322,7 @@ reprieveButton = MainTab:CreateButton({
 					workspace:WaitForChild("Script"):WaitForChild("BeaconPickup"):FireServer(child)
 				end
 			end
-			task.wait(1)
+			task.wait(2)
 			pcall(function()
 				for _, f in next, getgc() do
 					if type(f) == "function" then
