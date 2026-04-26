@@ -100,11 +100,9 @@ local function getSharkBehindCFrame(shark)
 end
 
 local function KillShark()
-	for i = 1, 5 do
-		if sharkName and remote then
-			local shark = workspace:WaitForChild("Sharks"):FindFirstChild(sharkName)
-			remotesFolder:WaitForChild(remote):FireServer(shark, true)
-		end
+	if sharkName and remote then
+		local shark = workspace:WaitForChild("Sharks"):FindFirstChild(sharkName)
+		remotesFolder:WaitForChild(remote):FireServer(shark, true)
 	end
 end
 
