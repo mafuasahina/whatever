@@ -109,6 +109,8 @@ end
 Tab:CreateSection("Autofarm")
 
 local runningConnection
+local lastClickTime = 0
+local clickCooldown = 1
 
 Tab:CreateToggle({
 	Name = "Auto kill shark [don't equip projectile weapons to work]",
@@ -163,12 +165,15 @@ Tab:CreateToggle({
 
 								local equippedTool = character:FindFirstChildOfClass("Tool")
 								if equippedTool then
-									local vp = Camera.ViewportSize
-									local cx, cy = vp.X / 2, vp.Y / 2
-									VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
-									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
-									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
-									task.wait(1)
+									local currentTime = tick()
+									if currentTime - lastClickTime >= clickCooldown then
+										local vp = Camera.ViewportSize
+										local cx, cy = vp.X / 2, vp.Y / 2
+										VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
+										VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+										VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+										lastClickTime = currentTime
+									end
 								end
 							else
 								Camera.CameraType = Enum.CameraType.Custom
