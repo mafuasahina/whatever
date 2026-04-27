@@ -113,7 +113,7 @@ local lastClickTime = 0
 local clickCooldown = 1
 
 Tab:CreateToggle({
-	Name = "Auto kill shark [don't equip projectile weapons to work]",
+	Name = "Auto kill shark [won't work with projectiles]",
 	CurrentValue = false,
 	Flag = "AutoKillShark",
 	Callback = function(on)
