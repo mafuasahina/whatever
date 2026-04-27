@@ -93,14 +93,10 @@ local function getShark()
 	sharkName = nil
 end
 
-local function getSharkBehindPosition(shark)
-	local size = shark:GetExtentsSize()
-	local primaryPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
-	if primaryPart then
-		local behindOffset = size.Z / 2 + 5
-		return primaryPart.CFrame * CFrame.new(0, 0, behindOffset)
-	end
-	return nil
+local function getSharkBehindCFrame(shark)
+	local boundingCFrame, boundingSize = shark:GetBoundingBox()
+	local behindOffset = boundingSize.Z / 2
+	return boundingCFrame * CFrame.new(0, 0, behindOffset)
 end
 
 local function KillShark()
@@ -113,11 +109,9 @@ end
 Tab:CreateSection("Autofarm")
 
 local runningConnection
-local lastClickTime = 0
-local clickCooldown = 1
 
 Tab:CreateToggle({
-	Name = "Auto Instakill shark [don't equip projectile weapons to work]",
+	Name = "Auto kill shark [don't equip projectile weapons to work]",
 	CurrentValue = false,
 	Flag = "AutoKillShark",
 	Callback = function(on)
@@ -159,29 +153,30 @@ Tab:CreateToggle({
 							end
 
 							if not remote then
-								local behind = getSharkBehindPosition(shark)
+								local behind = getSharkBehindCFrame(shark)
+
 								hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
+								sethiddenproperty(hrp, "PhysicsRepRootPart", sharkPart)
 
 								Camera.CameraType = Enum.CameraType.Scriptable
 								Camera.CFrame = CFrame.new(behind.Position, sharkPart.Position)
 
 								local equippedTool = character:FindFirstChildOfClass("Tool")
 								if equippedTool then
-									local currentTime = tick()
-									if currentTime - lastClickTime >= clickCooldown then
-										local vp = Camera.ViewportSize
-										local cx, cy = vp.X / 2, vp.Y / 2
-										VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
-										VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
-										VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
-										lastClickTime = currentTime
-									end
+									local vp = Camera.ViewportSize
+									local cx, cy = vp.X / 2, vp.Y / 2
+									VirtualInputManager:SendMouseMoveEvent(cx, cy, game)
+									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, true, game, 1)
+									VirtualInputManager:SendMouseButtonEvent(cx, cy, 0, false, game, 1)
+									task.wait(1)
 								end
 							else
 								Camera.CameraType = Enum.CameraType.Custom
-								local behind = getSharkBehindPosition(shark)
-								hrp.CFrame = behind
-								sethiddenproperty(hrp, "PhysicsRepRootPart", shark)
+
+								local behind = getSharkBehindCFrame(shark)
+								hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
+								sethiddenproperty(hrp, "PhysicsRepRootPart", sharkPart)
+
 								KillShark()
 							end
 						end
