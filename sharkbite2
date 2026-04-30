@@ -80,6 +80,13 @@ end
 player.CharacterAdded:Connect(updateHRP)
 if player.Character then updateHRP() end
 
+local function unseat()
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.SeatPart then
+		humanoid.Sit = false
+	end
+end
+
 local function getShark()
 	local sharksFolder = workspace:FindFirstChild("Sharks")
 	if sharksFolder then
@@ -113,7 +120,7 @@ local lastClickTime = 0
 local clickCooldown = 1
 
 Tab:CreateToggle({
-	Name = "Auto kill shark [don't equip projectile weapons to work]",
+	Name = "Auto kill shark [won't work with projectiles]",
 	CurrentValue = false,
 	Flag = "AutoKillShark",
 	Callback = function(on)
@@ -140,6 +147,7 @@ Tab:CreateToggle({
 					local chinook = workspace:FindFirstChild("Chinook")
 					local interior = chinook and chinook:FindFirstChild("interior")
 					if interior then
+						unseat()
 						hrp.CFrame = interior.CFrame
 					end
 				else
@@ -157,6 +165,7 @@ Tab:CreateToggle({
 							if not remote then
 								local behind = getSharkBehindCFrame(shark)
 
+								unseat()
 								hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
 								sethiddenproperty(hrp, "PhysicsRepRootPart", sharkPart)
 
@@ -179,6 +188,7 @@ Tab:CreateToggle({
 								Camera.CameraType = Enum.CameraType.Custom
 
 								local behind = getSharkBehindCFrame(shark)
+								unseat()
 								hrp.CFrame = CFrame.new(behind.Position, sharkPart.Position)
 								sethiddenproperty(hrp, "PhysicsRepRootPart", sharkPart)
 
@@ -384,6 +394,7 @@ Tab:CreateToggle({
 				for _, t in ipairs(VaseTouchParts) do
 					if t and t.Parent and t.Parent:IsA("BasePart") then
 						local part = t.Parent
+						unseat()
 						charHRP.CFrame = part.CFrame
 						firetouchinterest(charHRP, part, 0)
 						firetouchinterest(charHRP, part, 1)
