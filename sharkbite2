@@ -168,7 +168,7 @@ Tab:CreateToggle({
 								sethiddenproperty(hrp, "PhysicsRepRootPart", sharkPart)
 
 								Camera.CameraType = Enum.CameraType.Scriptable
-								Camera.CFrame = CFrame.new(sharkPart.Position, sharkCenter)
+								Camera.CFrame = CFrame.new(sharkCenter, sharkPart.Position)
 
 								local equippedTool = character:FindFirstChildOfClass("Tool")
 								if equippedTool then
