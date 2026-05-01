@@ -207,7 +207,7 @@ Tab:CreateToggle({
 	end
 })
 
-local SharkParts = {}
+local DestructionParts = {}
 
 local AutoWinConnection
 local SharksDescendantConnection
@@ -253,20 +253,20 @@ local function addDestructionPart(part)
 	local shark = getSharkModel(part)
 	if not shark then return end
 
-	if not SharkParts[shark] then
-		SharkParts[shark] = {}
+	if not DestructionParts[shark] then
+		DestructionParts[shark] = {}
 		shark.AncestryChanged:Connect(function(_, parent)
 			if not parent then
-				SharkParts[shark] = nil
+				DestructionParts[shark] = nil
 			end
 		end)
 	end
 
-	table.insert(SharkParts[shark], part)
+	table.insert(DestructionParts[shark], part)
 
 	part.AncestryChanged:Connect(function(_, parent)
 		if parent then return end
-		local list = SharkParts[shark]
+		local list = DestructionParts[shark]
 		if not list then return end
 		for i = #list, 1, -1 do
 			if list[i] == part then
@@ -316,7 +316,7 @@ Tab:CreateToggle({
 			AutoWinConnection = RunService.Heartbeat:Connect(function()
 				if not (player.Team and player.Team.Name == "Shark") then return end
 
-				for shark, parts in SharkParts do
+				for shark, parts in DestructionParts do
 					local frontPart = getFrontPart(shark, parts)
 					if not frontPart or not frontPart.Parent then continue end
 
@@ -338,7 +338,7 @@ Tab:CreateToggle({
 				SharksDescendantConnection:Disconnect()
 				SharksDescendantConnection = nil
 			end
-			table.clear(SharkParts)
+			table.clear(DestructionParts)
 		end
 	end
 })
