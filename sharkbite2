@@ -74,7 +74,8 @@ end
 local function updateHRP()
 	character = player.Character or player.CharacterAdded:Wait()
 	backpack = player:WaitForChild("Backpack")
-	hrp = character:WaitForChild("HumanoidRootPart")
+	local humanoid = character:WaitForChild("Humanoid")
+	hrp = humanoid and humanoid.RootPart
 end
 
 player.CharacterAdded:Connect(updateHRP)
@@ -282,7 +283,8 @@ local function getNearestSurvivorToPart(part)
 	for _, plr in Players:GetPlayers() do
 		if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
 			local char = plr.Character
-			local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
+			local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+			local hrpTarget = humanoid and humanoid.RootPart
 			if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
 				local dist = (hrpTarget.Position - part.Position).Magnitude
 				if dist < nearestDist then
@@ -322,7 +324,8 @@ Tab:CreateToggle({
 
 					local targetPlayer = getNearestSurvivorToPart(frontPart)
 					if targetPlayer and targetPlayer.Character then
-						local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
+						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
 							frontPart.CFrame = CFrame.new(targetHRP.Position)
 						end
@@ -436,7 +439,9 @@ Tab:CreateToggle({
 			end
 
 			VaseHeartbeat = RunService.Heartbeat:Connect(function()
-				local charHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+				local char = player.Character
+				local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+				local charHRP = humanoid and humanoid.RootPart
 				if not charHRP then return end
 				for _, t in ipairs(VaseTouchParts) do
 					if t and t.Parent and t.Parent:IsA("BasePart") then
