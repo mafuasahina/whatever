@@ -319,7 +319,6 @@ Tab:CreateToggle({
 			end)
 
 			AutoWinConnection = RunService.Heartbeat:Connect(function()
-				if not (player.Team and player.Team.Name == "Shark") then return end
 
 				for shark, parts in DestructionParts do
 					local frontPart = getFrontPart(shark, parts)
@@ -330,7 +329,7 @@ Tab:CreateToggle({
 						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
 						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
-							frontPart.CFrame = CFrame.new(targetHRP.Position)
+							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), 0, 0)
 						end
 					end
 				end
