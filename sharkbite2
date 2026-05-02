@@ -105,8 +105,11 @@ sharksFolder.ChildAdded:Connect(getShark)
 sharksFolder.ChildRemoved:Connect(getShark)
 
 local function getSharkCenter(shark)
-	local boundingCFrame = shark:GetBoundingBox()
-	return boundingCFrame.Position
+	local boundingCFrame, boundingSize = shark:GetBoundingBox()
+	local center = boundingCFrame.Position
+	local lowestPoint = center - Vector3.new(0, boundingSize.Y / 2, 0)
+	local halfway = center + (lowestPoint - center) / 2
+	return halfway
 end
 
 local function KillShark()
