@@ -207,7 +207,6 @@ Tab:CreateToggle({
 	end
 })
 
--- [shark model] = { part, part, ... }
 local DestructionParts = {}
 
 local AutoWinConnection
