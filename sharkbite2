@@ -74,7 +74,8 @@ end
 local function updateHRP()
 	character = player.Character or player.CharacterAdded:Wait()
 	backpack = player:WaitForChild("Backpack")
-	hrp = character:WaitForChild("HumanoidRootPart")
+	local humanoid = character:WaitForChild("Humanoid")
+	hrp = humanoid and humanoid.RootPart
 end
 
 player.CharacterAdded:Connect(updateHRP)
