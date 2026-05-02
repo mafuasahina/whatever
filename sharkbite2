@@ -43,20 +43,16 @@ local remotesFolder = ReplicatedStorage
 	:WaitForChild("Weapons")
 	:WaitForChild("remotes")
 
-local originalNamecall
-
 local function hookRemote(remoteObject)
 	local mt = getrawmetatable(game)
 	setreadonly(mt, false)
-	if not originalNamecall then
-		originalNamecall = mt.__namecall
-	end
+	local oldNamecall = mt.__namecall
 	mt.__namecall = newcclosure(function(self, ...)
 		local method = getnamecallmethod()
 		if self == remoteObject and (method == "FireServer" or method == "InvokeServer") then
 			remote = self.Name
 		end
-		return originalNamecall(self, ...)
+		return oldNamecall(self, ...)
 	end)
 end
 
@@ -78,8 +74,7 @@ end
 local function updateHRP()
 	character = player.Character or player.CharacterAdded:Wait()
 	backpack = player:WaitForChild("Backpack")
-	local humanoid = character:WaitForChild("Humanoid")
-	hrp = humanoid.RootPart or character:WaitForChild("HumanoidRootPart")
+	hrp = character:WaitForChild("HumanoidRootPart")
 end
 
 player.CharacterAdded:Connect(updateHRP)
@@ -212,7 +207,6 @@ Tab:CreateToggle({
 	end
 })
 
--- [shark model] = { part, part, ... }
 local DestructionParts = {}
 
 local AutoWinConnection
@@ -288,8 +282,7 @@ local function getNearestSurvivorToPart(part)
 	for _, plr in Players:GetPlayers() do
 		if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
 			local char = plr.Character
-			local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-			local hrpTarget = humanoid and humanoid.RootPart
+			local hrpTarget = char and char:FindFirstChild("HumanoidRootPart")
 			if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
 				local dist = (hrpTarget.Position - part.Position).Magnitude
 				if dist < nearestDist then
@@ -329,8 +322,7 @@ Tab:CreateToggle({
 
 					local targetPlayer = getNearestSurvivorToPart(frontPart)
 					if targetPlayer and targetPlayer.Character then
-						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
-						local targetHRP = humanoid and humanoid.RootPart
+						local targetHRP = targetPlayer.Character:FindFirstChild("HumanoidRootPart")
 						if targetHRP then
 							frontPart.CFrame = CFrame.new(targetHRP.Position)
 						end
@@ -444,8 +436,7 @@ Tab:CreateToggle({
 			end
 
 			VaseHeartbeat = RunService.Heartbeat:Connect(function()
-				local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-				local charHRP = humanoid and humanoid.RootPart
+				local charHRP = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 				if not charHRP then return end
 				for _, t in ipairs(VaseTouchParts) do
 					if t and t.Parent and t.Parent:IsA("BasePart") then
