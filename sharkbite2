@@ -36,6 +36,7 @@ local hrp
 
 local remote = nil
 local sharkName = nil
+local lastSharkKillTime = 0
 
 local remotesFolder = ReplicatedStorage
 	:WaitForChild("Projectiles")
@@ -110,7 +111,8 @@ local function getSharkCenter(shark)
 	local boundingCFrame, boundingSize = shark:GetBoundingBox()
 	local sharkCenter = boundingCFrame.Position
 	
-	local dirToPlayer = (hrp.Position - sharkCenter).Unit
+	local dirToPlayer = (hrp.Position - sharkCenter)
+	dirToPlayer = Vector3.new(dirToPlayer.X, 0, dirToPlayer.Z).Unit
 	local targetPos = sharkCenter + dirToPlayer * 100
 	
 	local raycastParams = RaycastParams.new()
@@ -131,6 +133,7 @@ local function KillShark()
 		local shark = sharksFolder:FindFirstChild(sharkName)
 		if shark then
 			remotesFolder:WaitForChild(remote):FireServer(shark, true)
+			lastSharkKillTime = tick()
 		end
 	end
 end
@@ -140,7 +143,6 @@ Tab:CreateSection("Autofarm")
 local runningConnection
 local lastClickTime = 0
 local clickCooldown = 1
-local helicopterSpawnTime = 0
 
 Tab:CreateToggle({
 	Name = "Auto kill shark [won't work with projectiles]",
@@ -168,11 +170,8 @@ Tab:CreateToggle({
 					local chinook = workspace:FindFirstChild("Chinook")
 					local interior = chinook and chinook:FindFirstChild("interior")
 					if interior then
-						local timeSinceSpawn = tick() - helicopterSpawnTime
-						if timeSinceSpawn < 10 then
-							unseat()
-							hrp.CFrame = interior.CFrame
-						else
+						local timeSinceKill = tick() - lastSharkKillTime
+						if timeSinceKill >= 2 then
 							unseat()
 							hrp.CFrame = interior.CFrame
 						end
@@ -220,12 +219,6 @@ Tab:CreateToggle({
 							end
 						end
 					end
-				end
-			end)
-
-			workspace.ChildAdded:Connect(function(child)
-				if child.Name == "Chinook" then
-					helicopterSpawnTime = tick()
 				end
 			end)
 		else
