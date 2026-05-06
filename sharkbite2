@@ -200,8 +200,7 @@ Tab:CreateToggle({
 
 							if not remote then
 								unseat()
-								hrp.CFrame = CFrame.new(sharkCenter)
-								sethiddenproperty(hrp, "PhysicsRepRootPart", sharkPart)
+								hrp.CFrame = CFrame.new(sharkCenter)=
 
 								Camera.CameraType = Enum.CameraType.Scriptable
 								Camera.CFrame = CFrame.new(sharkCenter, sharkPart.Position)
@@ -221,8 +220,7 @@ Tab:CreateToggle({
 							else
 								Camera.CameraType = Enum.CameraType.Custom
 								unseat()
-								hrp.CFrame = CFrame.new(sharkCenter)
-								sethiddenproperty(hrp, "PhysicsRepRootPart", sharkPart)
+								hrp.CFrame = CFrame.new(sharkCenter)=
 								KillShark()
 							end
 						end
