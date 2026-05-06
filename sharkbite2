@@ -117,7 +117,7 @@ local function getSharkCenter(shark)
 	local bestDist = 0
 	local bestDir = nil
 	
-	for angle = 0, 360, 45 do
+	for angle = 0, 360, 180 do
 		local rad = math.rad(angle)
 		local dirToTest = Vector3.new(math.cos(rad), 0, math.sin(rad))
 		
