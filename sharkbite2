@@ -200,7 +200,7 @@ Tab:CreateToggle({
 
 							if not remote then
 								unseat()
-								hrp.CFrame = CFrame.new(sharkCenter)=
+								hrp.CFrame = CFrame.new(sharkCenter)
 
 								Camera.CameraType = Enum.CameraType.Scriptable
 								Camera.CFrame = CFrame.new(sharkCenter, sharkPart.Position)
@@ -220,7 +220,7 @@ Tab:CreateToggle({
 							else
 								Camera.CameraType = Enum.CameraType.Custom
 								unseat()
-								hrp.CFrame = CFrame.new(sharkCenter)=
+								hrp.CFrame = CFrame.new(sharkCenter)
 								KillShark()
 							end
 						end
@@ -359,7 +359,7 @@ Tab:CreateToggle({
 						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
 						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
-							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), math.rad(90), 0)
+							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), math.rad(-90), 0)
 						end
 					end
 				end
