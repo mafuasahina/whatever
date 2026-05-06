@@ -111,7 +111,7 @@ local function getSharkCenter(shark)
 	local sharkCenter = boundingCFrame.Position
 	
 	local sharkRadius = math.max(boundingSize.X, boundingSize.Z) / 2
-	local totalSearchDist = sharkRadius + 100
+	local totalSearchDist = sharkRadius + 180
 	
 	local raycastParams = RaycastParams.new()
 	raycastParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -359,7 +359,7 @@ Tab:CreateToggle({
 						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
 						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
-							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), math.rad(-90), 0)
+							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), math.rad(90), 0)
 						end
 					end
 				end
