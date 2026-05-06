@@ -140,6 +140,7 @@ Tab:CreateSection("Autofarm")
 local runningConnection
 local lastClickTime = 0
 local clickCooldown = 1
+local helicopterSpawnTime = 0
 
 Tab:CreateToggle({
 	Name = "Auto kill shark [won't work with projectiles]",
@@ -167,8 +168,14 @@ Tab:CreateToggle({
 					local chinook = workspace:FindFirstChild("Chinook")
 					local interior = chinook and chinook:FindFirstChild("interior")
 					if interior then
-						unseat()
-						hrp.CFrame = interior.CFrame
+						local timeSinceSpawn = tick() - helicopterSpawnTime
+						if timeSinceSpawn < 10 then
+							unseat()
+							hrp.CFrame = interior.CFrame
+						else
+							unseat()
+							hrp.CFrame = interior.CFrame
+						end
 					end
 				else
 					local shark = sharksFolder:FindFirstChild(sharkName)
@@ -213,6 +220,12 @@ Tab:CreateToggle({
 							end
 						end
 					end
+				end
+			end)
+
+			workspace.ChildAdded:Connect(function(child)
+				if child.Name == "Chinook" then
+					helicopterSpawnTime = tick()
 				end
 			end)
 		else
