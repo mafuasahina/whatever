@@ -129,7 +129,7 @@ local function getSharkCenter(shark)
 	local first = results[1]
 	local second = results[2]
 
-	if first.dist >= 100 then
+	if first.dist >= 150 then
 		return sharkCenter + first.dir * first.dist
 	else
 		if second.dist > first.dist then
