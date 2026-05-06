@@ -36,7 +36,6 @@ local hrp
 
 local remote = nil
 local sharkName = nil
-local lastSharkKillTime = 0
 
 local remotesFolder = ReplicatedStorage
 	:WaitForChild("Projectiles")
@@ -133,7 +132,6 @@ local function KillShark()
 		local shark = sharksFolder:FindFirstChild(sharkName)
 		if shark then
 			remotesFolder:WaitForChild(remote):FireServer(shark, true)
-			lastSharkKillTime = tick()
 		end
 	end
 end
@@ -170,11 +168,8 @@ Tab:CreateToggle({
 					local chinook = workspace:FindFirstChild("Chinook")
 					local interior = chinook and chinook:FindFirstChild("interior")
 					if interior then
-						local timeSinceKill = tick() - lastSharkKillTime
-						if timeSinceKill >= 2 then
-							unseat()
-							hrp.CFrame = interior.CFrame
-						end
+						unseat()
+						hrp.CFrame = interior.CFrame
 					end
 				else
 					local shark = sharksFolder:FindFirstChild(sharkName)
