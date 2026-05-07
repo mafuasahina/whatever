@@ -3,7 +3,7 @@
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 local Window = Rayfield:CreateWindow({
-	Name = "Sharkbite 2",
+	Name = "Sharkbite 2 by mafuyu",
 	LoadingTitle = "Sharkbite 2 whatever",
 	LoadingSubtitle = "by mafuyu",
 	Theme = "Default",
