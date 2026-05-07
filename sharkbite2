@@ -129,7 +129,7 @@ local function getSharkCenter(shark)
 	local current = sharkCenterResults[currentSide]
 	local other = sharkCenterResults[otherSide]
 
-	if current.dist < 150 and other.dist > current.dist then
+	if current.dist < 200 and other.dist > current.dist then
 		currentSide = otherSide
 		current = other
 	end
