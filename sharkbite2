@@ -107,7 +107,7 @@ sharksFolder.ChildAdded:Connect(getShark)
 sharksFolder.ChildRemoved:Connect(getShark)
 
 local currentSide = 1
-local sharkCenterResults = {{},{},{},{},{},{},{},{}}
+local sharkCenterResults = {{}, {}, {}, {}}
 local sharkRaycastParams = RaycastParams.new()
 sharkRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
@@ -117,7 +117,7 @@ local function getSharkCenter(shark)
 
 	sharkRaycastParams.FilterDescendantsInstances = {character, shark}
 
-	for i, angle in ipairs({0, 45, 90, 135, 180, 225, 270, 315}) do
+	for i, angle in ipairs({0, 90, 180, 270}) do
 		local rad = math.rad(angle)
 		local dirToTest = Vector3.new(math.cos(rad), 0, math.sin(rad))
 		local rayResult = workspace:Raycast(sharkCenter, dirToTest * 300, sharkRaycastParams)
@@ -125,7 +125,7 @@ local function getSharkCenter(shark)
 		sharkCenterResults[i].dir = dirToTest
 	end
 
-	local otherSide = currentSide % 8 + 1
+	local otherSide = currentSide % 4 + 1
 	local current = sharkCenterResults[currentSide]
 	local other = sharkCenterResults[otherSide]
 
