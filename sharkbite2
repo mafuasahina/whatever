@@ -106,6 +106,7 @@ getShark()
 sharksFolder.ChildAdded:Connect(getShark)
 sharksFolder.ChildRemoved:Connect(getShark)
 
+local currentSide = 1
 local sharkCenterResults = {{}, {}}
 local sharkRaycastParams = RaycastParams.new()
 sharkRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -124,16 +125,16 @@ local function getSharkCenter(shark)
 		sharkCenterResults[i].dir = dirToTest
 	end
 
-	local first = sharkCenterResults[1]
-	local second = sharkCenterResults[2]
+	local otherSide = currentSide == 1 and 2 or 1
+	local current = sharkCenterResults[currentSide]
+	local other = sharkCenterResults[otherSide]
 
-	if first.dist >= 150 then
-		return sharkCenter + first.dir * first.dist
-	elseif second.dist > first.dist then
-		return sharkCenter + second.dir * second.dist
-	else
-		return sharkCenter + first.dir * first.dist
+	if current.dist < 150 and other.dist > current.dist then
+		currentSide = otherSide
+		current = other
 	end
+
+	return sharkCenter + current.dir * current.dist
 end
 
 local function KillShark()
