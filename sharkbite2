@@ -121,19 +121,22 @@ local function getSharkCenter(shark)
 		local rad = math.rad(angle)
 		local dirToTest = Vector3.new(math.cos(rad), 0, math.sin(rad))
 		local rayResult = workspace:Raycast(sharkCenter, dirToTest * 300, sharkRaycastParams)
-		sharkCenterResults[i].dist = rayResult and (rayResult.Distance - 3) or 300
+		sharkCenterResults[i].dist = rayResult and math.max(rayResult.Distance - 3, 10) or 300
 		sharkCenterResults[i].dir = dirToTest
 	end
 
-	local otherSide = currentSide % 4 + 1
-	local current = sharkCenterResults[currentSide]
-	local other = sharkCenterResults[otherSide]
-
-	if current.dist < 200 and other.dist > current.dist then
-		currentSide = otherSide
-		current = other
+	if sharkCenterResults[currentSide].dist < 200 then
+		local bestSide, bestDist = currentSide, sharkCenterResults[currentSide].dist
+		for i = 1, 4 do
+			if sharkCenterResults[i].dist > bestDist then
+				bestDist = sharkCenterResults[i].dist
+				bestSide = i
+			end
+		end
+		currentSide = bestSide
 	end
 
+	local current = sharkCenterResults[currentSide]
 	return sharkCenter + current.dir * current.dist
 end
 
