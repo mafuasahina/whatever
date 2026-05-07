@@ -125,7 +125,7 @@ local function getSharkCenter(shark)
 		sharkCenterResults[i].dir = dirToTest
 	end
 
-	if sharkCenterResults[currentSide].dist < 200 then
+	if sharkCenterResults[currentSide].dist < 150 then
 		local bestSide, bestDist = currentSide, sharkCenterResults[currentSide].dist
 		for i = 1, 4 do
 			if sharkCenterResults[i].dist > bestDist then
