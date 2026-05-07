@@ -115,7 +115,13 @@ local function getSharkCenter(shark)
 	local boundingCFrame = shark:GetBoundingBox()
 	local sharkCenter = boundingCFrame.Position
 
-	sharkRaycastParams.FilterDescendantsInstances = {character, shark}
+	local filtered = {shark}
+	for _, plr in Players:GetPlayers() do
+		if plr.Character then
+			table.insert(filtered, plr.Character)
+		end
+	end
+	sharkRaycastParams.FilterDescendantsInstances = filtered
 
 	for i, angle in ipairs({0, 180}) do
 		local rad = math.rad(angle)
