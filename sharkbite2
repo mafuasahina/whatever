@@ -112,8 +112,8 @@ local sharkRaycastParams = RaycastParams.new()
 sharkRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
 
 local function getSharkCenter(shark)
-	local boundingCFrame = shark:GetBoundingBox()
-	local sharkCenter = boundingCFrame.Position
+	local boundingCFrame, boundingSize = shark:GetBoundingBox()
+	local sharkCenter = boundingCFrame.Position - Vector3.new(0, boundingSize.Y * 0.125, 0)
 
 	local filtered = {shark}
 	for _, plr in Players:GetPlayers() do
@@ -201,8 +201,8 @@ Tab:CreateToggle({
 							end
 
 							if not remote then
-								local boundingCFrame = shark:GetBoundingBox()
-								local directCenter = boundingCFrame.Position
+								local boundingCFrame, boundingSize = shark:GetBoundingBox()
+								local directCenter = boundingCFrame.Position - Vector3.new(0, boundingSize.Y * 0.125, 0)
 
 								unseat()
 								hrp.CFrame = CFrame.new(directCenter)
