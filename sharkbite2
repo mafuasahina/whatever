@@ -190,7 +190,6 @@ Tab:CreateToggle({
 				else
 					local shark = sharksFolder:FindFirstChild(sharkName)
 					if shark then
-						local sharkCenter = getSharkCenter(shark)
 						local sharkPart = shark.PrimaryPart or shark:FindFirstChildWhichIsA("BasePart", true)
 						if sharkPart then
 							if next(backpack:GetChildren()) then
@@ -202,11 +201,14 @@ Tab:CreateToggle({
 							end
 
 							if not remote then
+								local boundingCFrame = shark:GetBoundingBox()
+								local directCenter = boundingCFrame.Position
+
 								unseat()
-								hrp.CFrame = CFrame.new(sharkCenter)
+								hrp.CFrame = CFrame.new(directCenter)
 
 								Camera.CameraType = Enum.CameraType.Scriptable
-								Camera.CFrame = CFrame.new(sharkCenter, sharkPart.Position)
+								Camera.CFrame = CFrame.new(directCenter, sharkPart.Position)
 
 								local equippedTool = character:FindFirstChildOfClass("Tool")
 								if equippedTool then
@@ -221,6 +223,7 @@ Tab:CreateToggle({
 									end
 								end
 							else
+								local sharkCenter = getSharkCenter(shark)
 								Camera.CameraType = Enum.CameraType.Custom
 								unseat()
 								hrp.CFrame = CFrame.new(sharkCenter)
