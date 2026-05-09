@@ -363,8 +363,6 @@ Tab:CreateToggle({
 						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
 							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), math.rad(90), 0)
-							frontPart.AssemblyLinearVelocity = Vector3.zero
-							frontPart.AssemblyAngularVelocity = Vector3.zero
 						end
 					end
 				end
