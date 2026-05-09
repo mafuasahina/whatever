@@ -456,7 +456,7 @@ local function AddVaseTouch(part)
 end
 
 Tab:CreateToggle({
-	Name = "Auto touch vases",
+	Name = "Auto touch vases [WARNING: HIGH RISK/BANNABLE]",
 	CurrentValue = false,
 	Flag = "AutoTouchVases",
 	Callback = function(state)
