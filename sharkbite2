@@ -362,7 +362,8 @@ Tab:CreateToggle({
 						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
 						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
-							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), math.rad(90), 0)
+							local rotation = CFrame.Angles(math.rad(-90), math.rad(90), 0)
+							frontPart.CFrame = CFrame.new(targetHRP.Position) * rotation * CFrame.new(-frontPart.Size.X / 2, 0, 0)
 						end
 					end
 				end
