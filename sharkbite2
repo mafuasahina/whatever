@@ -242,7 +242,7 @@ Tab:CreateToggle({
 
 local DestructionParts = {}
 
-local autoWinRunning = false
+local AutoWinConnection
 local SharksDescendantConnection
 
 local function getSharkModel(part)
@@ -347,32 +347,31 @@ Tab:CreateToggle({
 				end
 			end)
 
-			autoWinRunning = true
-			task.spawn(function()
-				while autoWinRunning do
-					if player.Team and player.Team.Name == "Shark" then
-						for shark, parts in DestructionParts do
-							local ownerValue = shark:FindFirstChild("PlayerOwner")
-							if not (ownerValue and ownerValue:IsA("ObjectValue") and ownerValue.Value == player) then continue end
+			AutoWinConnection = RunService.Heartbeat:Connect(function()
+				if not (player.Team and player.Team.Name == "Shark") then return end
 
-							local frontPart = getFrontPart(shark, parts)
-							if not frontPart or not frontPart.Parent then continue end
+				for shark, parts in DestructionParts do
+					local ownerValue = shark:FindFirstChild("PlayerOwner")
+					if not (ownerValue and ownerValue:IsA("ObjectValue") and ownerValue.Value == player) then continue end
 
-							local targetPlayer = getNearestSurvivorToPart(frontPart)
-							if targetPlayer and targetPlayer.Character then
-								local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
-								local targetHRP = humanoid and humanoid.RootPart
-								if targetHRP then
-									frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(-90), math.rad(90), 0)
-								end
-							end
+					local frontPart = getFrontPart(shark, parts)
+					if not frontPart or not frontPart.Parent then continue end
+
+					local targetPlayer = getNearestSurvivorToPart(frontPart)
+					if targetPlayer and targetPlayer.Character then
+						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+						local targetHRP = humanoid and humanoid.RootPart
+						if targetHRP then
+							frontPart.CFrame = CFrame.new(targetHRP.Position)
 						end
 					end
-					task.wait(1)
 				end
 			end)
 		else
-			autoWinRunning = false
+			if AutoWinConnection then
+				AutoWinConnection:Disconnect()
+				AutoWinConnection = nil
+			end
 			if SharksDescendantConnection then
 				SharksDescendantConnection:Disconnect()
 				SharksDescendantConnection = nil
