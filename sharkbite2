@@ -365,7 +365,7 @@ Tab:CreateToggle({
 						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
 							local rotation = CFrame.Angles(math.rad(-90), math.rad(90), 0)
-							frontPart.CFrame = CFrame.new(targetHRP.Position) * rotation * CFrame.new(-frontPart.Size.X / 2, 0, 0)
+							frontPart.CFrame = CFrame.new(targetHRP.Position) * rotation * CFrame.new(-frontPart.Size.X / 4, 0, 0)
 						end
 					end
 				end
