@@ -482,8 +482,8 @@ Tab:CreateToggle({
 						local part = t.Parent
 						unseat()
 						hrp.CFrame = part.CFrame
-						firetouchinterest(hrp, part, 0)
-						firetouchinterest(hrp, part, 1)
+						pcall(firetouchinterest, hrp, part, 0)
+						pcall(firetouchinterest, hrp, part, 1)
 					end
 				end
 			end)
