@@ -109,40 +109,40 @@ sharksFolder.ChildAdded:Connect(getShark)
 sharksFolder.ChildRemoved:Connect(getShark)
 
 local currentSide = 1
-local sharkCenterResults = {{}, {}, {}, {}}
-local sharkRaycastParams = RaycastParams.new()
-sharkRaycastParams.FilterType = Enum.RaycastFilterType.Exclude
+local sideResults = {{}, {}, {}, {}}
+local rayParams = RaycastParams.new()
+rayParams.FilterType = Enum.RaycastFilterType.Exclude
 
 local function getSharkCenter(shark)
-	local boundingCFrame, boundingSize = shark:GetBoundingBox()
-	local sharkCenter = boundingCFrame.Position - Vector3.new(0, boundingSize.Y * 0.125, 0)
+	local boundingCF, boundingSize = shark:GetBoundingBox()
+	local center = boundingCF.Position - Vector3.new(0, boundingSize.Y * 0.125, 0)
 
-	sharkRaycastParams.FilterDescendantsInstances = {character, shark}
+	rayParams.FilterDescendantsInstances = {character, shark}
 
 	for i, angle in ipairs({0, 90, 180, 270}) do
 		local rad = math.rad(angle)
-		local dirToTest = Vector3.new(math.cos(rad), 0, math.sin(rad))
-		local rayResult = workspace:Raycast(sharkCenter, dirToTest * 300, sharkRaycastParams)
-		sharkCenterResults[i].dist = rayResult and rayResult.Distance or 300
-		sharkCenterResults[i].dir = dirToTest
+		local dir = Vector3.new(math.cos(rad), 0, math.sin(rad))
+		local result = workspace:Raycast(center, dir * 300, rayParams)
+		sideResults[i].dist = result and result.Distance or 300
+		sideResults[i].dir = dir
 	end
 
-	if sharkCenterResults[currentSide].dist < 200 then
-		local bestSide, bestDist = currentSide, sharkCenterResults[currentSide].dist
+	if sideResults[currentSide].dist < 200 then
+		local bestSide, bestDist = currentSide, sideResults[currentSide].dist
 		for i = 1, 4 do
-			if sharkCenterResults[i].dist > bestDist then
-				bestDist = sharkCenterResults[i].dist
+			if sideResults[i].dist > bestDist then
+				bestDist = sideResults[i].dist
 				bestSide = i
 			end
 		end
 		currentSide = bestSide
 	end
 
-	local current = sharkCenterResults[currentSide]
-	return sharkCenter + current.dir * current.dist
+	local best = sideResults[currentSide]
+	return center + best.dir * best.dist
 end
 
-local function KillShark()
+local function killShark()
 	if sharkName and remote then
 		local shark = sharksFolder:FindFirstChild(sharkName)
 		if shark then
@@ -153,7 +153,7 @@ end
 
 Tab:CreateSection("Autofarm")
 
-local runningConnection
+local killConnection
 local lastClickTime = 0
 local clickCooldown = 1
 
@@ -175,7 +175,7 @@ Tab:CreateToggle({
 		end
 
 		if on then
-			runningConnection = RunService.Heartbeat:Connect(function()
+			killConnection = RunService.Heartbeat:Connect(function()
 				if not (player.Team and player.Team.Name == "Survivor" and hrp) then return end
 
 				if not sharkName then
@@ -200,14 +200,14 @@ Tab:CreateToggle({
 							end
 
 							if not remote then
-								local boundingCFrame, boundingSize = shark:GetBoundingBox()
-								local directCenter = boundingCFrame.Position - Vector3.new(0, boundingSize.Y * 0.125, 0)
+								local boundingCF, boundingSize = shark:GetBoundingBox()
+								local center = boundingCF.Position - Vector3.new(0, boundingSize.Y * 0.125, 0)
 
 								unseat()
-								hrp.CFrame = CFrame.new(directCenter)
+								hrp.CFrame = CFrame.new(center)
 
 								Camera.CameraType = Enum.CameraType.Scriptable
-								Camera.CFrame = CFrame.new(directCenter, sharkPart.Position)
+								Camera.CFrame = CFrame.new(center, sharkPart.Position)
 
 								local equippedTool = character:FindFirstChildOfClass("Tool")
 								if equippedTool then
@@ -226,7 +226,7 @@ Tab:CreateToggle({
 								Camera.CameraType = Enum.CameraType.Custom
 								unseat()
 								hrp.CFrame = CFrame.new(sharkCenter)
-								KillShark()
+								killShark()
 							end
 						end
 					end
@@ -234,18 +234,17 @@ Tab:CreateToggle({
 			end)
 		else
 			Camera.CameraType = Enum.CameraType.Custom
-			if runningConnection then
-				runningConnection:Disconnect()
-				runningConnection = nil
+			if killConnection then
+				killConnection:Disconnect()
+				killConnection = nil
 			end
 		end
 	end
 })
 
-local DestructionParts = {}
-
-local AutoWinConnection
-local SharksDescendantConnection
+local destructionParts = {}
+local autoWinConnection
+local sharksDescConnection
 
 local function getSharkModel(part)
 	local current = part.Parent
@@ -288,20 +287,20 @@ local function addDestructionPart(part)
 	local shark = getSharkModel(part)
 	if not shark then return end
 
-	if not DestructionParts[shark] then
-		DestructionParts[shark] = {}
+	if not destructionParts[shark] then
+		destructionParts[shark] = {}
 		shark.AncestryChanged:Connect(function(_, parent)
 			if not parent then
-				DestructionParts[shark] = nil
+				destructionParts[shark] = nil
 			end
 		end)
 	end
 
-	table.insert(DestructionParts[shark], part)
+	table.insert(destructionParts[shark], part)
 
 	part.AncestryChanged:Connect(function(_, parent)
 		if parent then return end
-		local list = DestructionParts[shark]
+		local list = destructionParts[shark]
 		if not list then return end
 		for i = #list, 1, -1 do
 			if list[i] == part then
@@ -312,15 +311,15 @@ local function addDestructionPart(part)
 	end)
 end
 
-local function getNearestSurvivorToPart(part)
+local function getNearestSurvivor(part)
 	local nearestPlayer, nearestDist = nil, math.huge
 	for _, plr in Players:GetPlayers() do
 		if plr ~= player and plr.Team and plr.Team.Name == "Survivor" then
 			local char = plr.Character
 			local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-			local hrpTarget = humanoid and humanoid.RootPart
-			if hrpTarget and not hrpTarget:FindFirstChild("Attachment") then
-				local dist = (hrpTarget.Position - part.Position).Magnitude
+			local targetHRP = humanoid and humanoid.RootPart
+			if targetHRP and not targetHRP:FindFirstChild("Attachment") then
+				local dist = (targetHRP.Position - part.Position).Magnitude
 				if dist < nearestDist then
 					nearestDist = dist
 					nearestPlayer = plr
@@ -343,57 +342,56 @@ Tab:CreateToggle({
 				end
 			end
 
-			SharksDescendantConnection = sharksFolder.DescendantAdded:Connect(function(desc)
+			sharksDescConnection = sharksFolder.DescendantAdded:Connect(function(desc)
 				if desc:IsA("BasePart") and desc.Name == "DestructionPart" then
 					addDestructionPart(desc)
 				end
 			end)
 
-			AutoWinConnection = RunService.Heartbeat:Connect(function()
+			autoWinConnection = RunService.Heartbeat:Connect(function()
 				if not (player.Team and player.Team.Name == "Shark") then return end
 
-				for shark, parts in DestructionParts do
+				for shark, parts in destructionParts do
 					local ownerValue = shark:FindFirstChild("PlayerOwner")
 					if not (ownerValue and ownerValue:IsA("ObjectValue") and ownerValue.Value == player) then continue end
 
 					local frontPart = getFrontPart(shark, parts)
 					if not frontPart or not frontPart.Parent then continue end
 
-					local targetPlayer = getNearestSurvivorToPart(frontPart)
-					if targetPlayer and targetPlayer.Character then
-						local humanoid = targetPlayer.Character:FindFirstChildOfClass("Humanoid")
+					local target = getNearestSurvivor(frontPart)
+					if target and target.Character then
+						local humanoid = target.Character:FindFirstChildOfClass("Humanoid")
 						local targetHRP = humanoid and humanoid.RootPart
 						if targetHRP then
-							local rotation = CFrame.Angles(math.rad(45), math.rad(-90), 0)
-							frontPart.CFrame = CFrame.new(targetHRP.Position) * rotation
+							frontPart.CFrame = CFrame.new(targetHRP.Position) * CFrame.Angles(math.rad(45), math.rad(-90), 0)
 						end
 					end
 				end
 			end)
 		else
-			if AutoWinConnection then
-				AutoWinConnection:Disconnect()
-				AutoWinConnection = nil
+			if autoWinConnection then
+				autoWinConnection:Disconnect()
+				autoWinConnection = nil
 			end
-			if SharksDescendantConnection then
-				SharksDescendantConnection:Disconnect()
-				SharksDescendantConnection = nil
+			if sharksDescConnection then
+				sharksDescConnection:Disconnect()
+				sharksDescConnection = nil
 			end
-			table.clear(DestructionParts)
+			table.clear(destructionParts)
 		end
 	end
 })
 
 Tab:CreateSection("Shark ESP")
 
-local sharkESPConnections = {}
+local espConnections = {}
 local espWatching = false
 
 local function setSharkESP(enabled)
-	for _, conn in ipairs(sharkESPConnections) do
+	for _, conn in ipairs(espConnections) do
 		conn:Disconnect()
 	end
-	table.clear(sharkESPConnections)
+	table.clear(espConnections)
 	espWatching = false
 
 	for _, desc in ipairs(sharksFolder:GetDescendants()) do
@@ -401,10 +399,10 @@ local function setSharkESP(enabled)
 			desc.Enabled = enabled
 			desc.OutlineTransparency = enabled and 0 or 1
 			if enabled then
-				table.insert(sharkESPConnections, desc:GetPropertyChangedSignal("Enabled"):Connect(function()
+				table.insert(espConnections, desc:GetPropertyChangedSignal("Enabled"):Connect(function()
 					if not desc.Enabled then desc.Enabled = true end
 				end))
-				table.insert(sharkESPConnections, desc:GetPropertyChangedSignal("OutlineTransparency"):Connect(function()
+				table.insert(espConnections, desc:GetPropertyChangedSignal("OutlineTransparency"):Connect(function()
 					if desc.OutlineTransparency ~= 0 then desc.OutlineTransparency = 0 end
 				end))
 			end
@@ -413,14 +411,14 @@ local function setSharkESP(enabled)
 
 	if enabled and not espWatching then
 		espWatching = true
-		table.insert(sharkESPConnections, sharksFolder.DescendantAdded:Connect(function(desc)
+		table.insert(espConnections, sharksFolder.DescendantAdded:Connect(function(desc)
 			if desc:IsA("Highlight") then
 				desc.Enabled = true
 				desc.OutlineTransparency = 0
-				table.insert(sharkESPConnections, desc:GetPropertyChangedSignal("Enabled"):Connect(function()
+				table.insert(espConnections, desc:GetPropertyChangedSignal("Enabled"):Connect(function()
 					if not desc.Enabled then desc.Enabled = true end
 				end))
-				table.insert(sharkESPConnections, desc:GetPropertyChangedSignal("OutlineTransparency"):Connect(function()
+				table.insert(espConnections, desc:GetPropertyChangedSignal("OutlineTransparency"):Connect(function()
 					if desc.OutlineTransparency ~= 0 then desc.OutlineTransparency = 0 end
 				end))
 			end
@@ -439,17 +437,17 @@ Tab:CreateToggle({
 
 Tab:CreateSection("Auto Vase")
 
-local VaseTouchParts = {}
-local VaseConnections = {}
-local VaseHeartbeat
+local vaseParts = {}
+local vaseConnections = {}
+local vaseConnection
 
-local function AddVaseTouch(part)
-	table.insert(VaseTouchParts, part)
+local function addVasePart(part)
+	table.insert(vaseParts, part)
 	part.AncestryChanged:Connect(function(_, parent)
 		if parent then return end
-		for i = #VaseTouchParts, 1, -1 do
-			if VaseTouchParts[i] == part then
-				table.remove(VaseTouchParts, i)
+		for i = #vaseParts, 1, -1 do
+			if vaseParts[i] == part then
+				table.remove(vaseParts, i)
 				break
 			end
 		end
@@ -466,40 +464,36 @@ Tab:CreateToggle({
 			if folder then
 				for _, d in ipairs(folder:GetDescendants()) do
 					if d:IsA("TouchTransmitter") then
-						AddVaseTouch(d)
+						addVasePart(d)
 					end
 				end
-				table.insert(VaseConnections, folder.DescendantAdded:Connect(function(desc)
+				table.insert(vaseConnections, folder.DescendantAdded:Connect(function(desc)
 					if desc:IsA("TouchTransmitter") then
-						AddVaseTouch(desc)
+						addVasePart(desc)
 					end
 				end))
 			end
 
-			VaseHeartbeat = RunService.Heartbeat:Connect(function()
-				if runningConnection and sharkName then return end
-
-				local char = player.Character
-				local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-				local charHRP = humanoid and humanoid.RootPart
-				if not charHRP then return end
-				for _, t in ipairs(VaseTouchParts) do
+			vaseConnection = RunService.Heartbeat:Connect(function()
+				if killConnection and sharkName then return end
+				if not hrp then return end
+				for _, t in ipairs(vaseParts) do
 					if t and t.Parent and t.Parent:IsA("BasePart") then
 						local part = t.Parent
 						unseat()
-						charHRP.CFrame = part.CFrame
-						firetouchinterest(charHRP, part, 0)
-						firetouchinterest(charHRP, part, 1)
+						hrp.CFrame = part.CFrame
+						firetouchinterest(hrp, part, 0)
+						firetouchinterest(hrp, part, 1)
 					end
 				end
 			end)
 		else
-			for _, c in ipairs(VaseConnections) do c:Disconnect() end
-			table.clear(VaseConnections)
-			table.clear(VaseTouchParts)
-			if VaseHeartbeat then
-				VaseHeartbeat:Disconnect()
-				VaseHeartbeat = nil
+			for _, c in ipairs(vaseConnections) do c:Disconnect() end
+			table.clear(vaseConnections)
+			table.clear(vaseParts)
+			if vaseConnection then
+				vaseConnection:Disconnect()
+				vaseConnection = nil
 			end
 		end
 	end
