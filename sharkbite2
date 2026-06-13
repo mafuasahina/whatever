@@ -37,8 +37,6 @@ local hrp
 local remote = nil
 local sharkName = nil
 
-local validWeapons = ReplicatedStorage:WaitForChild("ClientViewportObjects"):WaitForChild("Weapons")
-
 local remotesFolder = ReplicatedStorage
 	:WaitForChild("Projectiles")
 	:WaitForChild("Events")
@@ -193,7 +191,7 @@ Tab:CreateToggle({
 						if sharkPart then
 							if next(backpack:GetChildren()) then
 								for _, tool in ipairs(backpack:GetChildren()) do
-									if tool:IsA("Tool") and validWeapons:FindFirstChild(tool.Name) then
+									if tool:IsA("Tool") and tool.Name ~= "Turtle" and tool.Name ~= "FlareGun" then
 										tool.Parent = character
 									end
 								end
