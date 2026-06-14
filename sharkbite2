@@ -37,6 +37,8 @@ local hrp
 local remote = nil
 local sharkName = nil
 
+local validWeapons = ReplicatedStorage:WaitForChild("ClientViewportObjects"):WaitForChild("Weapons")
+
 local remotesFolder = ReplicatedStorage
 	:WaitForChild("Projectiles")
 	:WaitForChild("Events")
@@ -151,6 +153,12 @@ end
 
 Tab:CreateSection("Autofarm")
 
+local excludedTools = {
+	Turtle = true,
+	FlareGun = true,
+	BaitBucket = true,
+}
+
 local killConnection
 local lastClickTime = 0
 local clickCooldown = 1
@@ -191,7 +199,10 @@ Tab:CreateToggle({
 						if sharkPart then
 							if next(backpack:GetChildren()) then
 								for _, tool in ipairs(backpack:GetChildren()) do
-									if tool:IsA("Tool") and tool.Name ~= "Turtle" and tool.Name ~= "FlareGun" and tool.Name ~= "BaitBucket" then
+									if tool:IsA("Tool")
+										and validWeapons:FindFirstChild(tool.Name)
+										and not excludedTools[tool.Name]
+									then
 										tool.Parent = character
 									end
 								end
