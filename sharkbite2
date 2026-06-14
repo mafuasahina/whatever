@@ -153,12 +153,6 @@ end
 
 Tab:CreateSection("Autofarm")
 
-local excludedTools = {
-	Turtle = true,
-	FlareGun = true,
-	BaitBucket = true,
-}
-
 local killConnection
 local lastClickTime = 0
 local clickCooldown = 1
@@ -199,10 +193,7 @@ Tab:CreateToggle({
 						if sharkPart then
 							if next(backpack:GetChildren()) then
 								for _, tool in ipairs(backpack:GetChildren()) do
-									if tool:IsA("Tool")
-										and validWeapons:FindFirstChild(tool.Name)
-										and not excludedTools[tool.Name]
-									then
+									if tool:IsA("Tool") and validWeapons:FindFirstChild(tool.Name) and tool.Name ~= "Turtle" and tool.Name ~= "FlareGun" and tool.Name ~= "BaitBucket" then
 										tool.Parent = character
 									end
 								end
