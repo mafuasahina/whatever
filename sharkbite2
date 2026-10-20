@@ -15,8 +15,7 @@ local weak = { __mode = "k" }
 
 local remote
 if getupvalue then
-	local fire = require(scripts.ProjectilesClient.WeaponScript.HitScanFire).Fire
-	remote = getupvalue(getupvalue(getupvalue(fire, 6), 5), 2)
+	remote = getupvalue(getupvalue(getupvalue(require(scripts.ProjectilesClient.WeaponScript.HitScanFire).Fire, 6), 5), 2)
 end
 
 local afk = scripts:FindFirstChild("AFK")
@@ -27,6 +26,7 @@ local oxygen = scripts:FindFirstChild("HUD") and scripts.HUD:FindFirstChild("Oxy
 if oxygen then
 	oxygen:Destroy()
 end
+workspace.FallenPartsDestroyHeight = math.nan
 
 local character, humanoid, hrp, backpack
 
@@ -49,7 +49,6 @@ end
 
 local side = 1
 local params = RaycastParams.new()
-params.FilterType = Enum.RaycastFilterType.Exclude
 
 local function cast(origin, dir)
 	local hit = workspace:Raycast(origin, dir * 300, params)
@@ -113,7 +112,7 @@ local function sharkOf(part)
 end
 
 local function addDestructionPart(part)
-	if part.Name == "DestructionPart" and part:IsA("BasePart") then
+	if part.Name == "DestructionPart" then
 		local model = sharkOf(part)
 		if model then
 			local parts = destructionParts[model]
@@ -141,12 +140,9 @@ local function frontPart(model, parts)
 	local best, bestDot = nil, -math.huge
 	for part in parts do
 		if part.Parent then
-			local offset = part.Position - root.Position
-			if offset.Magnitude > 0 then
-				local dot = look:Dot(offset.Unit)
-				if dot > bestDot then
-					best, bestDot = part, dot
-				end
+			local dot = look:Dot((part.Position - root.Position).Unit)
+			if dot > bestDot then
+				best, bestDot = part, dot
 			end
 		end
 	end
