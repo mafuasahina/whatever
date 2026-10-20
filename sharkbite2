@@ -9,8 +9,6 @@ if env.SharkbiteLoadedFor == player then
 end
 env.SharkbiteLoadedFor = player
 
-local rayfield = loadstring(game:HttpGet("https://sirius.menu/gen2"))()
-
 local scripts = player.PlayerScripts
 local sharks = workspace:WaitForChild("Sharks")
 local weapons = game:GetService("ReplicatedStorage"):WaitForChild("ClientViewportObjects"):WaitForChild("Weapons")
@@ -252,7 +250,7 @@ local function touch()
 	end
 end
 
-local window = rayfield:CreateWindow({
+local window = loadstring(game:HttpGet("https://sirius.menu/gen2"))():CreateWindow({
 	name = "Sharkbite 2 by mafuyu",
 	configuration = {
 		autoSave = true,
