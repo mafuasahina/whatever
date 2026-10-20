@@ -1,9 +1,16 @@
 local players = game:GetService("Players")
 local run = game:GetService("RunService")
 
+local player = players.LocalPlayer
+
+local env = getgenv and getgenv() or _G
+if env.SharkbiteLoadedFor == player then
+	return
+end
+env.SharkbiteLoadedFor = player
+
 local rayfield = loadstring(game:HttpGet("https://sirius.menu/gen2"))()
 
-local player = players.LocalPlayer
 local scripts = player.PlayerScripts
 local sharks = workspace:WaitForChild("Sharks")
 local weapons = game:GetService("ReplicatedStorage"):WaitForChild("ClientViewportObjects"):WaitForChild("Weapons")
@@ -12,10 +19,12 @@ local skip = { Turtle = true, FlareGun = true, BaitBucket = true }
 local dirs = { Vector3.xAxis, Vector3.zAxis, -Vector3.xAxis, -Vector3.zAxis }
 local tilt = CFrame.Angles(math.rad(45), math.rad(-90), 0)
 
+local getUpvalue = debug.getupvalue or getupvalue
+
 local remote
-if getupvalue then
+if getUpvalue then
 	local ok, result = pcall(function()
-		return getupvalue(getupvalue(getupvalue(require(scripts.ProjectilesClient.WeaponScript.HitScanFire).Fire, 6), 5), 2)
+		return getUpvalue(getUpvalue(getUpvalue(require(scripts.ProjectilesClient.WeaponScript.HitScanFire).Fire, 6), 5), 2)
 	end)
 	if ok and typeof(result) == "Instance" then
 		remote = result
@@ -279,7 +288,7 @@ tab:CreateToggle({
 			return
 		end
 		if not remote then
-			unsupported("AutoKillShark", "getupvalue, or the weapon script could not be read")
+			unsupported("AutoKillShark", "debug.getupvalue, or the weapon script could not be read")
 			return
 		end
 		killConn = run.Heartbeat:Connect(farm)
