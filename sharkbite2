@@ -100,13 +100,22 @@ local function farm()
 	remote:FireServer(shark, true)
 end
 
-local winConn, winModel, winParts, winScan = nil, nil, {}, 0
+local destructionParts, winConns = {}, {}
 
-local function ownShark()
-	for _, model in sharks:GetChildren() do
-		local owner = model:FindFirstChild("PlayerOwner")
-		if owner and owner.Value == player then
-			return model
+local function sharkOf(part)
+	while part and part.Parent ~= sharks do
+		part = part.Parent
+	end
+	return part
+end
+
+local function addDestructionPart(part)
+	if part.Name == "DestructionPart" then
+		local model = sharkOf(part)
+		if model then
+			local parts = destructionParts[model] or {}
+			destructionParts[model] = parts
+			parts[part] = true
 		end
 	end
 end
@@ -130,23 +139,11 @@ local function frontPart(model, parts)
 			if dot > bestDot then
 				best, bestDot = part, dot
 			end
+		else
+			parts[part] = nil
 		end
 	end
 	return best
-end
-
-local function livePart(model)
-	if model ~= winModel or os.clock() - winScan > 0.5 then
-		winModel, winParts, winScan = model, {}, os.clock()
-		for _, desc in model:GetDescendants() do
-			if desc.Name == "DestructionPart" then
-				winParts[desc] = true
-			end
-		end
-	end
-
-	local front = frontPart(model, winParts)
-	return front and front:IsDescendantOf(model) and front or nil
 end
 
 local function nearestRoot(part)
