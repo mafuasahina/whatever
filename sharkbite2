@@ -14,7 +14,12 @@ local tilt = CFrame.Angles(math.rad(45), math.rad(-90), 0)
 
 local remote
 if getupvalue then
-	remote = getupvalue(getupvalue(getupvalue(require(scripts.ProjectilesClient.WeaponScript.HitScanFire).Fire, 6), 5), 2)
+	local ok, result = pcall(function()
+		return getupvalue(getupvalue(getupvalue(require(scripts.ProjectilesClient.WeaponScript.HitScanFire).Fire, 6), 5), 2)
+	end)
+	if ok and typeof(result) == "Instance" then
+		remote = result
+	end
 end
 
 local afk = scripts:FindFirstChild("AFK")
@@ -274,7 +279,7 @@ tab:CreateToggle({
 			return
 		end
 		if not remote then
-			unsupported("AutoKillShark", "getupvalue")
+			unsupported("AutoKillShark", "getupvalue, or the weapon script could not be read")
 			return
 		end
 		killConn = run.Heartbeat:Connect(farm)
