@@ -11,7 +11,6 @@ local weapons = game:GetService("ReplicatedStorage"):WaitForChild("ClientViewpor
 local skip = { Turtle = true, FlareGun = true, BaitBucket = true }
 local dirs = { Vector3.xAxis, Vector3.zAxis, -Vector3.xAxis, -Vector3.zAxis }
 local tilt = CFrame.Angles(math.rad(45), math.rad(-90), 0)
-local weak = { __mode = "k" }
 
 local remote
 if getupvalue then
@@ -101,26 +100,13 @@ local function farm()
 	remote:FireServer(shark, true)
 end
 
-local destructionParts = setmetatable({}, weak)
-local winConns = {}
+local winConn, winModel, winParts, winScan = nil, nil, {}, 0
 
-local function sharkOf(part)
-	while part and part.Parent ~= sharks do
-		part = part.Parent
-	end
-	return part
-end
-
-local function addDestructionPart(part)
-	if part.Name == "DestructionPart" then
-		local model = sharkOf(part)
-		if model then
-			local parts = destructionParts[model]
-			if not parts then
-				parts = setmetatable({}, weak)
-				destructionParts[model] = parts
-			end
-			parts[part] = true
+local function ownShark()
+	for _, model in sharks:GetChildren() do
+		local owner = model:FindFirstChild("PlayerOwner")
+		if owner and owner.Value == player then
+			return model
 		end
 	end
 end
@@ -149,6 +135,20 @@ local function frontPart(model, parts)
 	return best
 end
 
+local function livePart(model)
+	if model ~= winModel or os.clock() - winScan > 0.5 then
+		winModel, winParts, winScan = model, {}, os.clock()
+		for _, desc in model:GetDescendants() do
+			if desc.Name == "DestructionPart" then
+				winParts[desc] = true
+			end
+		end
+	end
+
+	local front = frontPart(model, winParts)
+	return front and front:IsDescendantOf(model) and front or nil
+end
+
 local function nearestRoot(part)
 	local nearest, nearestDist = nil, math.huge
 	for _, plr in players:GetPlayers() do
@@ -171,15 +171,11 @@ local function win()
 		return
 	end
 
-	for model, parts in destructionParts do
-		local owner = model.Parent and model:FindFirstChild("PlayerOwner")
-		if owner and owner.Value == player then
-			local front = frontPart(model, parts)
-			local root = front and front.Parent and nearestRoot(front)
-			if root then
-				front.CFrame = CFrame.new(root.Position) * tilt
-			end
-		end
+	local model = ownShark()
+	local front = model and livePart(model)
+	local root = front and nearestRoot(front)
+	if root then
+		front.CFrame = CFrame.new(root.Position) * tilt
 	end
 end
 
@@ -217,7 +213,7 @@ local function setESP(on)
 	end
 end
 
-local vaseParts = setmetatable({}, weak)
+local vaseParts = {}
 local vaseConns = {}
 
 local function addVase(desc)
@@ -237,6 +233,8 @@ local function touch()
 			hrp.CFrame = part.CFrame
 			firetouchinterest(hrp, part, 0)
 			firetouchinterest(hrp, part, 1)
+		else
+			vaseParts[part] = nil
 		end
 	end
 end
@@ -288,17 +286,13 @@ tab:CreateToggle({
 	name = "Auto win as shark",
 	flag = "AutoWinShark",
 	callback = function(on)
-		disconnect(winConns)
-		table.clear(destructionParts)
-		if not on then
-			return
+		if winConn then
+			winConn:Disconnect()
+			winConn = nil
 		end
-
-		for _, desc in sharks:GetDescendants() do
-			addDestructionPart(desc)
+		if on then
+			winConn = run.Heartbeat:Connect(win)
 		end
-		table.insert(winConns, sharks.DescendantAdded:Connect(addDestructionPart))
-		table.insert(winConns, run.Heartbeat:Connect(win))
 	end,
 })
 
