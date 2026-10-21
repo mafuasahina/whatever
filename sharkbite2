@@ -15,7 +15,6 @@ local weapons = game:GetService("ReplicatedStorage"):WaitForChild("ClientViewpor
 
 local skip = { Turtle = true, FlareGun = true, BaitBucket = true }
 local dirs = { Vector3.xAxis, Vector3.zAxis, -Vector3.xAxis, -Vector3.zAxis }
-local tilt = CFrame.Angles(math.rad(45), math.rad(-90), 0)
 
 local getUpvalue = debug.getupvalue or getupvalue
 
@@ -186,7 +185,7 @@ local function win()
 	local front = model and livePart(model)
 	local root = front and nearestRoot(front)
 	if root then
-		front.CFrame = CFrame.new(root.Position) * tilt
+		front.CFrame = CFrame.new(root.Position)
 	end
 end
 
