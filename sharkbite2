@@ -66,16 +66,18 @@ local function cast(origin, dir)
 end
 
 local function sharkCenter(shark)
-	local cf, size = shark:GetBoundingBox()
-	local center = cf.Position - Vector3.new(0, size.Y * 0.125, 0)
+	local center = shark:GetBoundingBox().Position
 	params.FilterDescendantsInstances = { character, shark }
 
 	local dist = cast(center, dirs[side])
 	if dist < 200 then
+		local start = side
 		for i, dir in dirs do
-			local d = cast(center, dir)
-			if d > dist then
-				side, dist = i, d
+			if i ~= start then
+				local d = cast(center, dir)
+				if d > dist then
+					side, dist = i, d
+				end
 			end
 		end
 	end
