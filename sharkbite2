@@ -287,7 +287,7 @@ tab:CreateToggle({
 			return
 		end
 		if not remote then
-			unsupported("AutoKillShark", "debug.getupvalue, or the weapon script could not be read")
+			unsupported("AutoKillShark", "debug.getupvalue or require")
 			return
 		end
 		killConn = run.Heartbeat:Connect(farm)
